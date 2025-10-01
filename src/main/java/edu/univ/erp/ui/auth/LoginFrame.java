@@ -74,7 +74,7 @@ public class LoginFrame extends JFrame {
         // Login button
         loginButton = new JButton("Login");
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
-        loginButton.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_BORDER_LESS);
+        loginButton.putClientProperty(FlatClientProperties.BUTTON_TYPE, "borderless");
         loginButton.addActionListener(e -> handleLogin());
         mainPanel.add(loginButton, "growx, wrap");
 
