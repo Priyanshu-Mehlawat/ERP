@@ -1,12 +1,10 @@
-2025-10-01 10:57:17 [main] INFO  edu.univ.erp.Main - Starting University ERP System...
-2025-10-01 10:57:18 [main] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
-2025-10-01 10:57:18 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
-2025-10-01 10:57:18 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
-2025-10-01 10:57:41 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
-2025-10-01 10:57:43 [AWT-EventQueue-0] ERROR e.univ.erp.data.DatabaseConnection - Failed to initialize database connection pools
-com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
+2025-10-04 17:44:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 17:44:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 17:44:41 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 17:44:42 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 17:44:54 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 17:44:55 [AWT-EventQueue-0] ERROR e.univ.erp.data.DatabaseConnection - Failed to initialize database connection pools
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Access denied for user 'root'@'localhost'
 	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:584)
 	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:571)
 	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98)
@@ -14,23 +12,26 @@ The last packet sent successfully to the server was 0 milliseconds ago. The driv
 	at edu.univ.erp.data.DatabaseConnection.initializeDataSources(DatabaseConnection.java:35)
 	at edu.univ.erp.data.DatabaseConnection.<clinit>(DatabaseConnection.java:22)
 	at edu.univ.erp.ui.auth.LoginFrame.handleLogin(LoginFrame.java:124)
-	at edu.univ.erp.ui.auth.LoginFrame.lambda$initComponents$0(LoginFrame.java:78)
-	at java.desktop/javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1972)
-	at java.desktop/javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2314)
-	at java.desktop/javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:407)
-	at java.desktop/javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:262)
-	at java.desktop/javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:279)
-	at java.desktop/java.awt.Component.processMouseEvent(Component.java:6621)
-	at java.desktop/javax.swing.JComponent.processMouseEvent(JComponent.java:3398)
-	at java.desktop/java.awt.Component.processEvent(Component.java:6386)
+	at edu.univ.erp.ui.auth.LoginFrame.lambda$initComponents$1(LoginFrame.java:103)
+	at java.desktop/javax.swing.JTextField.fireActionPerformed(JTextField.java:525)
+	at java.desktop/javax.swing.JTextField.postActionEvent(JTextField.java:740)
+	at java.desktop/javax.swing.JTextField$NotifyAction.actionPerformed(JTextField.java:856)
+	at java.desktop/javax.swing.SwingUtilities.notifyAction(SwingUtilities.java:1810)
+	at java.desktop/javax.swing.JComponent.processKeyBinding(JComponent.java:2956)
+	at java.desktop/javax.swing.JComponent.processKeyBindings(JComponent.java:3004)
+	at java.desktop/javax.swing.JComponent.processKeyEvent(JComponent.java:2918)
+	at java.desktop/java.awt.Component.processEvent(Component.java:6398)
 	at java.desktop/java.awt.Container.processEvent(Container.java:2266)
 	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:4996)
 	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2324)
 	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4828)
-	at java.desktop/java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4948)
-	at java.desktop/java.awt.LightweightDispatcher.processMouseEvent(Container.java:4575)
-	at java.desktop/java.awt.LightweightDispatcher.dispatchEvent(Container.java:4516)
-	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2310)
+	at java.desktop/java.awt.KeyboardFocusManager.redispatchEvent(KeyboardFocusManager.java:1952)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.dispatchKeyEvent(DefaultKeyboardFocusManager.java:883)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.preDispatchKeyEvent(DefaultKeyboardFocusManager.java:1146)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.typeAheadAssertions(DefaultKeyboardFocusManager.java:1020)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.dispatchEvent(DefaultKeyboardFocusManager.java:848)
+	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:4877)
+	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2324)
 	at java.desktop/java.awt.Window.dispatchEventImpl(Window.java:2780)
 	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4828)
 	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:775)
@@ -50,11 +51,9 @@ The last packet sent successfully to the server was 0 milliseconds ago. The driv
 	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
 	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
 	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
-Caused by: com.mysql.cj.jdbc.exceptions.CommunicationsException: Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-	at com.mysql.cj.jdbc.exceptions.SQLError.createCommunicationsException(SQLError.java:174)
-	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:64)
+Caused by: java.sql.SQLException: Access denied for user 'root'@'localhost'
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:130)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
 	at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:815)
 	at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:438)
 	at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:241)
@@ -64,29 +63,32 @@ The last packet sent successfully to the server was 0 milliseconds ago. The driv
 	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
 	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
 	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550)
-	... 41 common frames omitted
-Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
-	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
-	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
-	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:61)
-	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:104)
-	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:149)
-	at com.mysql.cj.exceptions.ExceptionFactory.createCommunicationsException(ExceptionFactory.java:165)
-	at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:88)
-	at com.mysql.cj.NativeSession.connect(NativeSession.java:120)
-	at com.mysql.cj.jdbc.ConnectionImpl.connectOneTryOnly(ConnectionImpl.java:935)
-	at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:805)
-	... 49 common frames omitted
-Caused by: java.net.ConnectException: Connection refused
-	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
-	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682)
-	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:542)
-	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592)
-	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
-	at java.base/java.net.Socket.connect(Socket.java:751)
-	at com.mysql.cj.protocol.StandardSocketFactory.connect(StandardSocketFactory.java:153)
-	at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:62)
-	... 52 common frames omitted
+	... 44 common frames omitted
+2025-10-04 17:48:10 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 17:48:10 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 17:48:10 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 17:48:10 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@14e57551
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 17:48:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@74410e7d
+2025-10-04 17:48:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 17:48:23 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 17:48:23 [SwingWorker-pool-1-thread-1] WARN  edu.univ.erp.auth.AuthService - Failed login attempt for user: admin1 (attempt 1/5)
+2025-10-04 17:48:33 [SwingWorker-pool-1-thread-2] WARN  edu.univ.erp.auth.AuthService - Failed login attempt for user: admin1 (attempt 2/5)
+2025-10-04 17:53:34 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 17:53:35 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 17:53:35 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 17:53:35 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 17:53:44 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 17:53:44 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@3fb2b606
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@783fc95b
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 17:53:45 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)

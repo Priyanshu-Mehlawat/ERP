@@ -84,20 +84,8 @@ public class LoginFrame extends JFrame {
         statusLabel.setForeground(Color.RED);
         mainPanel.add(statusLabel, "align center, wrap");
 
-        // Info panel
-        JPanel infoPanel = new JPanel(new MigLayout("fillx, insets 10", "[grow]", "[]5[]5[]5[]"));
-        infoPanel.setBorder(BorderFactory.createTitledBorder("Default Credentials"));
-        infoPanel.add(new JLabel("Admin: admin1 / password123"), "wrap");
-        infoPanel.add(new JLabel("Instructor: inst1 / password123"), "wrap");
-        infoPanel.add(new JLabel("Student 1: stu1 / password123"), "wrap");
-        infoPanel.add(new JLabel("Student 2: stu2 / password123"), "wrap");
-
-        // Add panels to frame
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(mainPanel, BorderLayout.CENTER);
-        centerPanel.add(infoPanel, BorderLayout.SOUTH);
-
-        add(centerPanel, BorderLayout.CENTER);
+        // Add panels to frame - removed info panel with credentials
+        add(mainPanel, BorderLayout.CENTER);
 
         // Enter key to login
         passwordField.addActionListener(e -> handleLogin());
