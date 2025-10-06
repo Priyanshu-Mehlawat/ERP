@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.awt.*;
 
 /**
@@ -44,6 +45,11 @@ public class StudentDashboard extends JFrame {
 
         // Menu buttons
         JButton browseCatalogBtn = createMenuButton("Browse Course Catalog", "View available courses");
+        // Replace default placeholder action with real action
+        for (ActionListener al : browseCatalogBtn.getActionListeners()) {
+            browseCatalogBtn.removeActionListener(al);
+        }
+        browseCatalogBtn.addActionListener(e -> openCourseCatalog());
         JButton myCoursesBtn = createMenuButton("My Courses", "View registered courses");
         JButton timetableBtn = createMenuButton("My Timetable", "View class schedule");
         JButton gradesBtn = createMenuButton("My Grades", "View grades and scores");
@@ -92,5 +98,15 @@ public class StudentDashboard extends JFrame {
             dispose();
             new LoginFrame().setVisible(true);
         }
+    }
+
+    private void openCourseCatalog() {
+        JDialog dialog = new JDialog(this, "Course Catalog", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(800, 500);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new CourseCatalogPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
     }
 }

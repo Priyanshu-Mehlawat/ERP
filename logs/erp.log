@@ -92,3 +92,31 @@ Caused by: java.sql.SQLException: Access denied for user 'root'@'localhost'
 2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
 2025-10-04 17:53:45 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
 2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)
+2025-10-04 23:53:51 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 23:53:51 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 23:53:51 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 23:53:51 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@4211d93c
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@335edabd
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 23:54:01 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)
+2025-10-04 23:54:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 23:54:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 23:54:41 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 23:54:41 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@3eed98b7
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@7eb22b33
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 23:54:48 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: stu1
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: stu1 (role: STUDENT)
