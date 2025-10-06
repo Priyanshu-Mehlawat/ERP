@@ -44,10 +44,18 @@ public class SectionSelectionDialog extends JDialog {
     private void loadCurrentStudent() {
         try {
             Long userId = SessionManager.getInstance().getCurrentUser().getUserId();
+            if (userId == null) {
+                logger.warn("User ID is null, cannot load student data");
+                return;
+            }
             currentStudent = studentDAO.findByUserId(userId);
+            if (currentStudent == null) {
+                logger.warn("No student found for user ID: {}", userId);
+            }
         } catch (SQLException e) {
             logger.error("Error loading current student", e);
-            JOptionPane.showMessageDialog(this, "Error loading student data", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading student data: " + e.getMessage(), 
+                "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -139,6 +147,11 @@ public class SectionSelectionDialog extends JDialog {
             return;
         }
 
+        if (row < 0) {
+            logger.warn("Invalid row index for enrollment: {}", row);
+            return;
+        }
+
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             @Override
             protected String doInBackground() {
@@ -146,10 +159,15 @@ public class SectionSelectionDialog extends JDialog {
                     List<Section> sections = sectionService.listByCourse(course.getCourseId(), "Fall", 2025);
                     if (row < sections.size()) {
                         Section section = sections.get(row);
+                        if (section == null) {
+                            return "ERROR: Section not found";
+                        }
                         return enrollmentService.enroll(currentStudent.getStudentId(), section.getSectionId());
+                    } else {
+                        return "ERROR: Invalid section selection";
                     }
-                    return "Section not found";
                 } catch (Exception e) {
+                    logger.error("Error during enrollment", e);
                     return "Error: " + e.getMessage();
                 }
             }

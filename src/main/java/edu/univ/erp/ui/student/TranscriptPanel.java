@@ -29,6 +29,9 @@ import java.util.List;
  */
 public class TranscriptPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(TranscriptPanel.class);
+    
+    // Default credits per course
+    private static final int DEFAULT_CREDITS = 3;
 
     private final EnrollmentService enrollmentService = new EnrollmentService();
     private final StudentDAO studentDAO = new StudentDAO();
@@ -52,7 +55,14 @@ public class TranscriptPanel extends JPanel {
     private void loadCurrentStudent() {
         try {
             currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null || currentUser.getUserId() == null) {
+                logger.warn("Current user or user ID is null, cannot load student data");
+                return;
+            }
             currentStudent = studentDAO.findByUserId(currentUser.getUserId());
+            if (currentStudent == null) {
+                logger.warn("No student found for user ID: {}", currentUser.getUserId());
+            }
         } catch (SQLException e) {
             logger.error("Error loading current student", e);
         }
@@ -162,7 +172,7 @@ public class TranscriptPanel extends JPanel {
                         for (Enrollment enrollment : enrollments) {
                             String term = determineTerm(enrollment.getEnrolledDate());
                             String grade = enrollment.getFinalGrade();
-                            int credits = 3; // Default credits per course
+                            int credits = DEFAULT_CREDITS;
                             
                             double gradePoints = 0.0;
                             if (grade != null && !grade.isEmpty()) {

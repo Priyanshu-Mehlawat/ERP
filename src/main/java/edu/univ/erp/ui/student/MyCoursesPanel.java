@@ -37,7 +37,14 @@ public class MyCoursesPanel extends JPanel {
     private void loadCurrentStudent() {
         try {
             Long userId = SessionManager.getInstance().getCurrentUser().getUserId();
+            if (userId == null) {
+                logger.warn("User ID is null, cannot load student data");
+                return;
+            }
             currentStudent = studentDAO.findByUserId(userId);
+            if (currentStudent == null) {
+                logger.warn("No student found for user ID: {}", userId);
+            }
         } catch (SQLException e) {
             logger.error("Error loading current student", e);
         }

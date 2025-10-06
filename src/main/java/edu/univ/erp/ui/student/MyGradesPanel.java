@@ -24,6 +24,15 @@ import java.text.DecimalFormat;
  */
 public class MyGradesPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(MyGradesPanel.class);
+    
+    // Grade thresholds
+    private static final double GRADE_A_THRESHOLD = 90.0;
+    private static final double GRADE_B_THRESHOLD = 80.0;
+    private static final double GRADE_C_THRESHOLD = 70.0;
+    private static final double GRADE_D_THRESHOLD = 60.0;
+    
+    // Default credits per course
+    private static final int DEFAULT_CREDITS = 3;
 
     private final EnrollmentService enrollmentService = new EnrollmentService();
     private final GradeService gradeService = new GradeService();
@@ -48,7 +57,14 @@ public class MyGradesPanel extends JPanel {
     private void loadCurrentStudent() {
         try {
             Long userId = SessionManager.getInstance().getCurrentUser().getUserId();
+            if (userId == null) {
+                logger.warn("User ID is null, cannot load student data");
+                return;
+            }
             currentStudent = studentDAO.findByUserId(userId);
+            if (currentStudent == null) {
+                logger.warn("No student found for user ID: {}", userId);
+            }
         } catch (SQLException e) {
             logger.error("Error loading current student", e);
         }
@@ -157,15 +173,15 @@ public class MyGradesPanel extends JPanel {
                                 finalGradeStr = finalGrade;
                                 // Convert to GPA points (assuming 4.0 scale)
                                 double gradePoints = MyGradesPanel.this.convertLetterToGPA(finalGrade);
-                                totalGradePoints += gradePoints * 3; // Assuming 3 credits per course
-                                totalCredits += 3;
+                                totalGradePoints += gradePoints * DEFAULT_CREDITS;
+                                totalCredits += DEFAULT_CREDITS;
                                 gradedCourses++;
                             }
                             
                             coursesModel.addRow(new Object[]{
                                 enrollment.getCourseCode(),
                                 enrollment.getSectionNumber(),
-                                "3", // Default credits
+                                String.valueOf(DEFAULT_CREDITS),
                                 finalGradeStr,
                                 enrollment.getStatus()
                             });
@@ -292,6 +308,8 @@ public class MyGradesPanel extends JPanel {
 
     // Custom cell renderer for grades
     private static class GradeCellRenderer extends JLabel implements TableCellRenderer {
+        private static final Logger logger = LoggerFactory.getLogger(GradeCellRenderer.class);
+        
         public GradeCellRenderer() {
             setOpaque(true);
         }
@@ -311,19 +329,20 @@ public class MyGradesPanel extends JPanel {
                 
                 // Color code grades
                 String text = getText();
-                if (text.contains("%") && !text.equals("N/A")) {
+                if (text.contains("%") && !"N/A".equals(text)) {
                     try {
-                        double value_num = Double.parseDouble(text.replace("%", ""));
-                        if (value_num >= 90) {
+                        double gradeValue = Double.parseDouble(text.replace("%", ""));
+                        if (gradeValue >= GRADE_A_THRESHOLD) {
                             setForeground(new Color(0, 120, 0)); // Green for A
-                        } else if (value_num >= 80) {
+                        } else if (gradeValue >= GRADE_B_THRESHOLD) {
                             setForeground(new Color(0, 0, 200)); // Blue for B
-                        } else if (value_num >= 70) {
+                        } else if (gradeValue >= GRADE_C_THRESHOLD) {
                             setForeground(new Color(200, 100, 0)); // Orange for C
-                        } else if (value_num >= 60) {
+                        } else if (gradeValue >= GRADE_D_THRESHOLD) {
                             setForeground(new Color(200, 0, 0)); // Red for D/F
                         }
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        logger.debug("Could not parse grade value: {}", text);
                         // Keep default color
                     }
                 }

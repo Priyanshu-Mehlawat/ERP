@@ -1,0 +1,122 @@
+2025-10-04 17:44:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 17:44:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 17:44:41 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 17:44:42 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 17:44:54 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 17:44:55 [AWT-EventQueue-0] ERROR e.univ.erp.data.DatabaseConnection - Failed to initialize database connection pools
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Access denied for user 'root'@'localhost'
+	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:584)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:571)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:80)
+	at edu.univ.erp.data.DatabaseConnection.initializeDataSources(DatabaseConnection.java:35)
+	at edu.univ.erp.data.DatabaseConnection.<clinit>(DatabaseConnection.java:22)
+	at edu.univ.erp.ui.auth.LoginFrame.handleLogin(LoginFrame.java:124)
+	at edu.univ.erp.ui.auth.LoginFrame.lambda$initComponents$1(LoginFrame.java:103)
+	at java.desktop/javax.swing.JTextField.fireActionPerformed(JTextField.java:525)
+	at java.desktop/javax.swing.JTextField.postActionEvent(JTextField.java:740)
+	at java.desktop/javax.swing.JTextField$NotifyAction.actionPerformed(JTextField.java:856)
+	at java.desktop/javax.swing.SwingUtilities.notifyAction(SwingUtilities.java:1810)
+	at java.desktop/javax.swing.JComponent.processKeyBinding(JComponent.java:2956)
+	at java.desktop/javax.swing.JComponent.processKeyBindings(JComponent.java:3004)
+	at java.desktop/javax.swing.JComponent.processKeyEvent(JComponent.java:2918)
+	at java.desktop/java.awt.Component.processEvent(Component.java:6398)
+	at java.desktop/java.awt.Container.processEvent(Container.java:2266)
+	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:4996)
+	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2324)
+	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4828)
+	at java.desktop/java.awt.KeyboardFocusManager.redispatchEvent(KeyboardFocusManager.java:1952)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.dispatchKeyEvent(DefaultKeyboardFocusManager.java:883)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.preDispatchKeyEvent(DefaultKeyboardFocusManager.java:1146)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.typeAheadAssertions(DefaultKeyboardFocusManager.java:1020)
+	at java.desktop/java.awt.DefaultKeyboardFocusManager.dispatchEvent(DefaultKeyboardFocusManager.java:848)
+	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:4877)
+	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2324)
+	at java.desktop/java.awt.Window.dispatchEventImpl(Window.java:2780)
+	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4828)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:775)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:98)
+	at java.desktop/java.awt.EventQueue$5.run(EventQueue.java:747)
+	at java.desktop/java.awt.EventQueue$5.run(EventQueue.java:745)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:744)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
+Caused by: java.sql.SQLException: Access denied for user 'root'@'localhost'
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:130)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:815)
+	at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:438)
+	at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:241)
+	at com.mysql.cj.jdbc.NonRegisteringDriver.connect(NonRegisteringDriver.java:189)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550)
+	... 44 common frames omitted
+2025-10-04 17:48:10 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 17:48:10 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 17:48:10 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 17:48:10 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@14e57551
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 17:48:22 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 17:48:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@74410e7d
+2025-10-04 17:48:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 17:48:23 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 17:48:23 [SwingWorker-pool-1-thread-1] WARN  edu.univ.erp.auth.AuthService - Failed login attempt for user: admin1 (attempt 1/5)
+2025-10-04 17:48:33 [SwingWorker-pool-1-thread-2] WARN  edu.univ.erp.auth.AuthService - Failed login attempt for user: admin1 (attempt 2/5)
+2025-10-04 17:53:34 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 17:53:35 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 17:53:35 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 17:53:35 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 17:53:44 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 17:53:44 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@3fb2b606
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@783fc95b
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 17:53:45 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
+2025-10-04 17:53:45 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)
+2025-10-04 23:53:51 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 23:53:51 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 23:53:51 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 23:53:51 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@4211d93c
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@335edabd
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 23:54:01 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
+2025-10-04 23:54:01 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)
+2025-10-04 23:54:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-04 23:54:41 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-04 23:54:41 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-04 23:54:41 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@3eed98b7
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@7eb22b33
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-04 23:54:48 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: stu1
+2025-10-04 23:54:48 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: stu1 (role: STUDENT)

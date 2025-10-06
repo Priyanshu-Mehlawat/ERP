@@ -169,4 +169,5 @@ public class StudentDashboard extends JFrame {
         dialog.add(new TranscriptPanel(), BorderLayout.CENTER);
         dialog.setVisible(true);
     }
+
 }
