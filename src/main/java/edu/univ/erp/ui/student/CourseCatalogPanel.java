@@ -48,7 +48,24 @@ public class CourseCatalogPanel extends JPanel {
         };
         table = new JTable(model);
         table.setFillsViewportHeight(true);
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    showSections();
+                }
+            }
+        });
         add(new JScrollPane(table), "grow, wrap");
+
+        // Add sections button
+        JButton sectionsBtn = new JButton("View Sections");
+        sectionsBtn.addActionListener(e -> showSections());
+        add(sectionsBtn, "split 2");
+        
+        JButton enrollBtn = new JButton("Quick Enroll");
+        enrollBtn.addActionListener(e -> showSections());
+        add(enrollBtn);
 
         // Status bar
         JLabel status = new JLabel("Ready");
@@ -82,5 +99,24 @@ public class CourseCatalogPanel extends JPanel {
             }
         };
         worker.execute();
+    }
+
+    private void showSections() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a course first", "No Selection", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        String courseCode = (String) model.getValueAt(selectedRow, 0);
+        
+        // Find course by code
+        for (Course course : courseService.listAll()) {
+            if (course.getCode().equals(courseCode)) {
+                SectionSelectionDialog dialog = new SectionSelectionDialog(SwingUtilities.getWindowAncestor(this), course);
+                dialog.setVisible(true);
+                break;
+            }
+        }
     }
 }

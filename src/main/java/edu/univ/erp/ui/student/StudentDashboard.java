@@ -50,10 +50,30 @@ public class StudentDashboard extends JFrame {
             browseCatalogBtn.removeActionListener(al);
         }
         browseCatalogBtn.addActionListener(e -> openCourseCatalog());
+
         JButton myCoursesBtn = createMenuButton("My Courses", "View registered courses");
+        for (ActionListener al : myCoursesBtn.getActionListeners()) {
+            myCoursesBtn.removeActionListener(al);
+        }
+        myCoursesBtn.addActionListener(e -> openMyCourses());
+
         JButton timetableBtn = createMenuButton("My Timetable", "View class schedule");
+        for (ActionListener al : timetableBtn.getActionListeners()) {
+            timetableBtn.removeActionListener(al);
+        }
+        timetableBtn.addActionListener(e -> openTimetable());
+
         JButton gradesBtn = createMenuButton("My Grades", "View grades and scores");
+        for (ActionListener al : gradesBtn.getActionListeners()) {
+            gradesBtn.removeActionListener(al);
+        }
+        gradesBtn.addActionListener(e -> openGrades());
+
         JButton transcriptBtn = createMenuButton("Download Transcript", "Export transcript");
+        for (ActionListener al : transcriptBtn.getActionListeners()) {
+            transcriptBtn.removeActionListener(al);
+        }
+        transcriptBtn.addActionListener(e -> openTranscript());
 
         centerPanel.add(browseCatalogBtn, "grow");
         centerPanel.add(myCoursesBtn, "grow");
@@ -107,6 +127,46 @@ public class StudentDashboard extends JFrame {
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new BorderLayout());
         dialog.add(new CourseCatalogPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openMyCourses() {
+        JDialog dialog = new JDialog(this, "My Courses", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(800, 500);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new MyCoursesPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openTimetable() {
+        JDialog dialog = new JDialog(this, "My Timetable", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(900, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new MyTimetablePanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openGrades() {
+        JDialog dialog = new JDialog(this, "My Grades", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(1000, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new MyGradesPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openTranscript() {
+        JDialog dialog = new JDialog(this, "Official Transcript", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(900, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new TranscriptPanel(), BorderLayout.CENTER);
         dialog.setVisible(true);
     }
 }
