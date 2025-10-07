@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Panel for instructors to view class rosters and student information.
@@ -43,7 +44,12 @@ public class ClassRosterPanel extends JPanel {
 
     private void loadCurrentInstructor() {
         try {
-            Long userId = SessionManager.getInstance().getCurrentUser().getUserId();
+            var currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                logger.warn("No current user in session, cannot load instructor data");
+                return;
+            }
+            Long userId = currentUser.getUserId();
             if (userId == null) {
                 logger.warn("User ID is null, cannot load instructor data");
                 return;
@@ -176,31 +182,55 @@ public class ClassRosterPanel extends JPanel {
 
         Section section = selectedItem.section;
         
-        SwingWorker<List<Enrollment>, Void> worker = new SwingWorker<>() {
+        SwingWorker<RosterData, Void> worker = new SwingWorker<>() {
             @Override
-            protected List<Enrollment> doInBackground() {
+            protected RosterData doInBackground() {
                 try {
-                    return enrollmentService.listBySection(section.getSectionId());
+                    // Fetch enrollments first
+                    List<Enrollment> enrollments = enrollmentService.listBySection(section.getSectionId());
+                    
+                    if (enrollments.isEmpty()) {
+                        return new RosterData(enrollments, Map.of());
+                    }
+                    
+                    // Extract all student IDs for batch fetch
+                    List<Long> studentIds = enrollments.stream()
+                        .map(Enrollment::getStudentId)
+                        .distinct()
+                        .collect(java.util.stream.Collectors.toList());
+                    
+                    // Batch fetch all students in a single query
+                    Map<Long, Student> studentMap = new java.util.HashMap<>();
+                    try {
+                        List<Student> students = studentDAO.findByIds(studentIds);
+                        for (Student student : students) {
+                            studentMap.put(student.getStudentId(), student);
+                        }
+                    } catch (SQLException e) {
+                        logger.error("Error batch loading student data for IDs: {}", studentIds, e);
+                        // Continue with empty map - will show N/A values
+                    }
+                    
+                    return new RosterData(enrollments, studentMap);
+                    
                 } catch (Exception e) {
-                    logger.error("Error loading roster", e);
-                    return List.of();
+                    logger.error("Error loading roster data", e);
+                    return new RosterData(List.of(), Map.of());
                 }
             }
 
             @Override
             protected void done() {
                 try {
-                    List<Enrollment> enrollments = get();
+                    RosterData rosterData = get();
+                    List<Enrollment> enrollments = rosterData.enrollments;
+                    Map<Long, Student> studentMap = rosterData.studentMap;
+                    
                     studentsModel.setRowCount(0);
                     
                     for (Enrollment enrollment : enrollments) {
-                        // Get student information separately
-                        Student student = null;
-                        try {
-                            student = studentDAO.findById(enrollment.getStudentId());
-                        } catch (SQLException e) {
-                            logger.error("Error loading student data for ID: {}", enrollment.getStudentId(), e);
-                        }
+                        // Get pre-fetched student information from map
+                        Student student = studentMap.get(enrollment.getStudentId());
                         
                         String studentName = "N/A";
                         String studentEmail = "N/A";
@@ -302,6 +332,17 @@ public class ClassRosterPanel extends JPanel {
         @Override
         public String toString() {
             return display;
+        }
+    }
+    
+    // Data class to hold roster information from background thread
+    private static class RosterData {
+        final List<Enrollment> enrollments;
+        final Map<Long, Student> studentMap;
+        
+        RosterData(List<Enrollment> enrollments, Map<Long, Student> studentMap) {
+            this.enrollments = enrollments;
+            this.studentMap = studentMap;
         }
     }
 }

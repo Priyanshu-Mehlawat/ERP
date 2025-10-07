@@ -76,7 +76,12 @@ public class EnrollmentService {
 
     public List<Enrollment> listByStudent(Long studentId) { return enrollmentDAO.listByStudent(studentId); }
 
-    public List<Enrollment> listBySection(Long sectionId) { return enrollmentDAO.listBySection(sectionId); }
+    public List<Enrollment> listBySection(Long sectionId) { 
+        if (sectionId == null) {
+            return List.of(); // Return empty list for null input
+        }
+        return enrollmentDAO.listBySection(sectionId); 
+    }
 
     public boolean updateFinalGrade(Long enrollmentId, String finalGrade) {
         try {

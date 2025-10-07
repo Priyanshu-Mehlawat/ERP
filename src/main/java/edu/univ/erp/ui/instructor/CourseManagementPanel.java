@@ -37,7 +37,12 @@ public class CourseManagementPanel extends JPanel {
 
     private void loadCurrentInstructor() {
         try {
-            Long userId = SessionManager.getInstance().getCurrentUser().getUserId();
+            var currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                logger.warn("No current user in session, cannot load instructor data");
+                return;
+            }
+            Long userId = currentUser.getUserId();
             if (userId == null) {
                 logger.warn("User ID is null, cannot load instructor data");
                 return;
@@ -168,8 +173,9 @@ public class CourseManagementPanel extends JPanel {
             return;
         }
         
-        String courseCode = (String) sectionsModel.getValueAt(selectedRow, 0);
-        String sectionNumber = (String) sectionsModel.getValueAt(selectedRow, 2);
+        int modelRow = sectionsTable.convertRowIndexToModel(selectedRow);
+        String courseCode = (String) sectionsModel.getValueAt(modelRow, 0);
+        String sectionNumber = (String) sectionsModel.getValueAt(modelRow, 2);
         
         JOptionPane.showMessageDialog(this, 
             "Section editing for " + courseCode + " - " + sectionNumber + " will be implemented in future version.",

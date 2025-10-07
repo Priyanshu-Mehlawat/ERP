@@ -1,5 +1,8 @@
 package edu.univ.erp.ui.instructor;
 
+import edu.univ.erp.auth.SessionManager;
+import edu.univ.erp.data.InstructorDAO;
+import edu.univ.erp.domain.Instructor;
 import edu.univ.erp.domain.Section;
 import edu.univ.erp.service.SectionService;
 import net.miginfocom.swing.MigLayout;
@@ -10,7 +13,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +24,8 @@ import java.util.List;
 public class InstructorSchedulePanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(InstructorSchedulePanel.class);
     
-    private final SectionService sectionService = new SectionService();
+    private final SectionService sectionService;
+    private final InstructorDAO instructorDAO;
     private JPanel scheduleGrid;
     private JLabel currentWeekLabel;
     
@@ -31,9 +37,26 @@ public class InstructorSchedulePanel extends JPanel {
     
     private final String[] dayNames = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 
-    public InstructorSchedulePanel() {
+    /**
+     * Main constructor with dependency injection for better testability.
+     * 
+     * @param sectionService service for managing sections
+     * @param instructorDAO data access object for instructors
+     */
+    public InstructorSchedulePanel(SectionService sectionService, InstructorDAO instructorDAO) {
+        this.sectionService = sectionService;
+        this.instructorDAO = instructorDAO;
+        
         initComponents();
         loadSchedule();
+    }
+    
+    /**
+     * Convenience no-arg constructor for production use and backward compatibility.
+     * Creates instances of dependencies directly.
+     */
+    public InstructorSchedulePanel() {
+        this(new SectionService(), new InstructorDAO());
     }
 
     private void initComponents() {
@@ -133,6 +156,32 @@ public class InstructorSchedulePanel extends JPanel {
         }
     }
     
+    /**
+     * Update the schedule grid with real section data
+     */
+    private void updateScheduleGridWithSections(List<Section> sections) {
+        scheduleGrid.removeAll();
+        scheduleGrid.setLayout(new GridLayout(timeSlots.length + 1, dayNames.length + 1, 1, 1));
+        scheduleGrid.setBackground(Color.WHITE);
+        
+        // Add header row
+        scheduleGrid.add(createHeaderCell("Time"));
+        for (String day : dayNames) {
+            scheduleGrid.add(createHeaderCell(day));
+        }
+        
+        // Add time slots and corresponding schedule cells
+        for (String time : timeSlots) {
+            scheduleGrid.add(createTimeCell(time));
+            for (String day : dayNames) {
+                scheduleGrid.add(createScheduleCellForSections(day, time, sections));
+            }
+        }
+        
+        scheduleGrid.revalidate();
+        scheduleGrid.repaint();
+    }
+    
     private JPanel createHeaderCell(String text) {
         JPanel cell = new JPanel(new BorderLayout());
         cell.setBackground(new Color(70, 130, 180));
@@ -191,6 +240,197 @@ public class InstructorSchedulePanel extends JPanel {
         return cell;
     }
     
+    /**
+     * Create a schedule cell with real section data
+     */
+    private JPanel createScheduleCellForSections(String day, String time, List<Section> sections) {
+        JPanel cell = new JPanel();
+        cell.setBackground(Color.WHITE);
+        cell.setBorder(BorderFactory.createLoweredBevelBorder());
+        cell.setPreferredSize(new Dimension(120, 50));
+        
+        if (sections == null || sections.isEmpty()) {
+            return cell; // Empty cell if no sections
+        }
+        
+        // Collect all sections that match this day and time
+        List<Section> matchingSections = new ArrayList<>();
+        for (Section section : sections) {
+            if (section != null && matchesDayAndTime(section, day, time)) {
+                matchingSections.add(section);
+            }
+        }
+        
+        if (matchingSections.isEmpty()) {
+            return cell; // No matching sections
+        }
+        
+        // Determine if there are conflicts (multiple sections at same time)
+        boolean hasConflict = matchingSections.size() > 1;
+        
+        // Set up vertical layout for stacking multiple sections
+        if (hasConflict) {
+            cell.setLayout(new BoxLayout(cell, BoxLayout.Y_AXIS));
+            // Conflict styling - red border and background tint
+            cell.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.RED, 2),  // Red conflict border
+                BorderFactory.createEmptyBorder(1, 1, 1, 1)
+            ));
+            cell.setBackground(new Color(255, 230, 230)); // Light red background for conflicts
+        } else {
+            cell.setLayout(new MigLayout("fill, insets 2", "[grow]", "[grow]"));
+        }
+        
+        // Add each matching section as a separate component
+        for (int i = 0; i < matchingSections.size(); i++) {
+            Section section = matchingSections.get(i);
+            
+            // Build section info content
+            StringBuilder content = new StringBuilder();
+            content.append("<html><div style='text-align: center; font-size: 9px;'>");
+            
+            if (section.getCourseCode() != null) {
+                content.append(section.getCourseCode()).append("<br/>");
+            }
+            
+            if (section.getCourseTitle() != null) {
+                content.append(section.getCourseTitle()).append("<br/>");
+            }
+            
+            if (section.getRoom() != null) {
+                content.append("Room ").append(section.getRoom());
+            }
+            
+            content.append("</div></html>");
+            
+            JLabel contentLabel = new JLabel(content.toString());
+            contentLabel.setOpaque(true);
+            
+            // Determine section type and apply appropriate colors
+            Color sectionColor = getSectionTypeColor(section);
+            contentLabel.setBackground(sectionColor);
+            
+            // If there's no conflict, set the cell background to match
+            if (!hasConflict) {
+                cell.setBackground(sectionColor);
+            }
+            
+            contentLabel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+            
+            // Add separator between sections in conflict view
+            if (hasConflict && i > 0) {
+                JLabel separator = new JLabel(" ");
+                separator.setPreferredSize(new Dimension(1, 2));
+                cell.add(separator);
+            }
+            
+            if (hasConflict) {
+                cell.add(contentLabel);
+            } else {
+                cell.add(contentLabel, "grow");
+            }
+        }
+        
+        return cell;
+    }
+    
+    /**
+     * Determine section type and return appropriate color based on section attributes
+     */
+    private Color getSectionTypeColor(Section section) {
+        // Check section number for type indicators
+        String sectionNumber = section.getSectionNumber();
+        String courseTitle = section.getCourseTitle();
+        
+        // Office Hours detection
+        if ((courseTitle != null && courseTitle.toLowerCase().contains("office")) ||
+            (sectionNumber != null && sectionNumber.toUpperCase().contains("OH"))) {
+            return new Color(144, 238, 144); // Light green for office hours
+        }
+        
+        // Lab/Tutorial detection  
+        if ((sectionNumber != null && (sectionNumber.toUpperCase().startsWith("L") || 
+                                      sectionNumber.toLowerCase().contains("lab"))) ||
+            (courseTitle != null && (courseTitle.toLowerCase().contains("lab") || 
+                                   courseTitle.toLowerCase().contains("tutorial")))) {
+            return new Color(255, 182, 193); // Light pink for labs
+        }
+        
+        // Regular course (default)
+        return new Color(135, 206, 250); // Light blue for lectures
+    }
+    
+    /**
+     * Check if a section matches the given day and time
+     */
+    private boolean matchesDayAndTime(Section section, String day, String time) {
+        if (section == null || section.getDayOfWeek() == null) {
+            return false;
+        }
+        
+        // Check if day matches (handle comma-separated days like "Monday,Wednesday")
+        boolean dayMatches = section.getDayOfWeek().contains(day);
+        
+        if (!dayMatches || section.getStartTime() == null) {
+            return false;
+        }
+        
+        // Parse the time slot (e.g., "09:00 AM" -> LocalTime)
+        try {
+            LocalTime slotTime = parseTimeSlot(time);
+            LocalTime sectionStart = section.getStartTime();
+            LocalTime sectionEnd = section.getEndTime();
+            
+            // Check if the time slot overlaps with section time
+            if (sectionEnd != null) {
+                return !slotTime.isBefore(sectionStart) && slotTime.isBefore(sectionEnd);
+            } else {
+                // If no end time, just match start time (within 1 hour window)
+                return !slotTime.isBefore(sectionStart) && slotTime.isBefore(sectionStart.plusHours(1));
+            }
+        } catch (Exception e) {
+            logger.warn("Error parsing time slot '{}': {}", time, e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Parse time slot string (e.g., "09:00 AM") to LocalTime
+     */
+    private LocalTime parseTimeSlot(String timeSlot) {
+        try {
+            // Remove spaces and convert to 24-hour format
+            String cleanTime = timeSlot.trim().toUpperCase();
+            boolean isPM = cleanTime.endsWith("PM");
+            boolean isAM = cleanTime.endsWith("AM");
+            
+            if (!isPM && !isAM) {
+                throw new IllegalArgumentException("Invalid time format: " + timeSlot);
+            }
+            
+            String timeOnly = cleanTime.substring(0, cleanTime.length() - 2).trim();
+            String[] parts = timeOnly.split(":");
+            
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Invalid time format: " + timeSlot);
+            }
+            
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+            
+            // Convert to 24-hour format
+            if (isPM && hour != 12) {
+                hour += 12;
+            } else if (isAM && hour == 12) {
+                hour = 0;
+            }
+            
+            return LocalTime.of(hour, minute);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error parsing time slot: " + timeSlot, e);
+        }
+    }
+    
     private String getScheduleContent(String day, String time) {
         // Simulate a realistic teaching schedule
         switch (day) {
@@ -222,20 +462,32 @@ public class InstructorSchedulePanel extends JPanel {
     }
     
     private void loadSchedule() {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                // In a real implementation, you would load the actual schedule from the database
-                List<Section> sections = sectionService.listByInstructor(getCurrentInstructorId());
-                logger.info("Loaded {} sections for instructor schedule", sections.size());
-                
-                // Update the schedule grid with real data if needed
-                scheduleGrid.revalidate();
-                scheduleGrid.repaint();
-                
-            } catch (Exception e) {
-                logger.error("Error loading schedule", e);
+        new SwingWorker<List<Section>, Void>() {
+            @Override
+            protected List<Section> doInBackground() throws Exception {
+                // Perform database call off the EDT
+                return sectionService.listByInstructor(getCurrentInstructorId());
             }
-        });
+            
+            @Override
+            protected void done() {
+                try {
+                    // Get the loaded sections from background thread
+                    List<Section> loadedSections = get();
+                    logger.info("Loaded {} sections for instructor schedule", loadedSections.size());
+                    
+                    // Update the schedule grid with real data
+                    updateScheduleGridWithSections(loadedSections);
+                    
+                } catch (Exception e) {
+                    logger.error("Error loading schedule", e);
+                    JOptionPane.showMessageDialog(InstructorSchedulePanel.this,
+                        "Error loading schedule: " + e.getMessage(),
+                        "Schedule Load Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
     }
     
     private void previousWeek(ActionEvent e) {
@@ -370,9 +622,62 @@ public class InstructorSchedulePanel extends JPanel {
             "Print Schedule", JOptionPane.INFORMATION_MESSAGE);
     }
     
+    /**
+     * Get the current authenticated instructor's ID from the session.
+     * 
+     * @return The instructor ID for the authenticated user
+     * @throws UnsupportedOperationException if no valid instructor session exists or authentication context is unavailable
+     */
     private Long getCurrentInstructorId() {
-        // This should get the current instructor ID from session
-        // For now, return a default value
-        return 1L;
+        try {
+            // Safely get current user and handle null case
+            var currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                logger.error("No current user session found. User must be logged in to access instructor features.");
+                throw new UnsupportedOperationException(
+                    "Instructor ID retrieval not available: No user session found. Please log in to access instructor features.");
+            }
+            
+            Long userId = currentUser.getUserId();
+            if (userId == null) {
+                logger.warn("User ID is null in session, cannot retrieve instructor ID");
+                throw new UnsupportedOperationException(
+                    "Instructor ID retrieval not available: User ID is null in session context.");
+            }
+            
+            // Get instructor record from user ID
+            Instructor instructor;
+            try {
+                instructor = instructorDAO.findByUserId(userId);
+            } catch (Exception dbException) {
+                logger.error("Database error while retrieving instructor for user ID: {}", userId, dbException);
+                throw new UnsupportedOperationException(
+                    "Instructor ID retrieval not available: Database error while retrieving instructor information.", dbException);
+            }
+            
+            if (instructor == null) {
+                logger.warn("No instructor record found for user ID: {}", userId);
+                throw new UnsupportedOperationException(
+                    "Instructor ID retrieval not available: No instructor record found for current user. Authorization required.");
+            }
+            
+            Long instructorId = instructor.getInstructorId();
+            if (instructorId == null) {
+                logger.warn("Instructor ID is null for user ID: {}", userId);
+                throw new UnsupportedOperationException(
+                    "Instructor ID retrieval not available: Instructor record exists but ID is null.");
+            }
+            
+            logger.debug("Retrieved instructor ID: {} for user ID: {}", instructorId, userId);
+            return instructorId;
+            
+        } catch (UnsupportedOperationException e) {
+            // Re-throw UnsupportedOperationException as-is
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error retrieving current instructor ID from session", e);
+            throw new UnsupportedOperationException(
+                "Instructor ID retrieval not available: Unexpected error in authentication context.", e);
+        }
     }
 }

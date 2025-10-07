@@ -1,16 +1,21 @@
 package edu.univ.erp.ui.instructor;
 
+import edu.univ.erp.auth.SessionManager;
+import edu.univ.erp.data.InstructorDAO;
+import edu.univ.erp.data.StudentDAO;
 import edu.univ.erp.domain.Enrollment;
+import edu.univ.erp.domain.Instructor;
 import edu.univ.erp.domain.Section;
 import edu.univ.erp.domain.Student;
 import edu.univ.erp.service.EnrollmentService;
 import edu.univ.erp.service.SectionService;
-import edu.univ.erp.data.StudentDAO;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -24,9 +29,10 @@ import java.util.List;
 public class AttendancePanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(AttendancePanel.class);
     
-    private final SectionService sectionService = new SectionService();
-    private final EnrollmentService enrollmentService = new EnrollmentService();
-    private final StudentDAO studentDAO = new StudentDAO();
+    private final SectionService sectionService;
+    private final EnrollmentService enrollmentService;
+    private final StudentDAO studentDAO;
+    private final InstructorDAO instructorDAO;
     
     private JComboBox<Section> sectionCombo;
     private JTable attendanceTable;
@@ -34,9 +40,31 @@ public class AttendancePanel extends JPanel {
     private JLabel attendanceDateLabel;
     private LocalDate currentDate = LocalDate.now();
 
-    public AttendancePanel() {
+    /**
+     * Main constructor with dependency injection for better testability.
+     * 
+     * @param sectionService service for managing sections
+     * @param enrollmentService service for managing enrollments  
+     * @param studentDAO data access object for students
+     * @param instructorDAO data access object for instructors
+     */
+    public AttendancePanel(SectionService sectionService, EnrollmentService enrollmentService, 
+                          StudentDAO studentDAO, InstructorDAO instructorDAO) {
+        this.sectionService = sectionService;
+        this.enrollmentService = enrollmentService;
+        this.studentDAO = studentDAO;
+        this.instructorDAO = instructorDAO;
+        
         initComponents();
         loadSections();
+    }
+    
+    /**
+     * Convenience no-arg constructor for production use and backward compatibility.
+     * Creates instances of dependencies directly.
+     */
+    public AttendancePanel() {
+        this(new SectionService(), new EnrollmentService(), new StudentDAO(), new InstructorDAO());
     }
 
     private void initComponents() {
@@ -88,6 +116,40 @@ public class AttendancePanel extends JPanel {
         attendanceTable.getColumnModel().getColumn(5).setPreferredWidth(60);
         attendanceTable.getColumnModel().getColumn(6).setPreferredWidth(200);
         
+        // Add listener to enforce mutually exclusive attendance status
+        tableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if (e.getType() == TableModelEvent.UPDATE) {
+                    int row = e.getFirstRow();
+                    int column = e.getColumn();
+                    
+                    // Only handle attendance status columns (3=Present, 4=Absent, 5=Late)
+                    if (column >= 3 && column <= 5) {
+                        boolean newValue = (Boolean) tableModel.getValueAt(row, column);
+                        
+                        // If the checkbox was just checked (newValue is true), uncheck the others
+                        if (newValue) {
+                            // Temporarily remove listener to avoid infinite recursion
+                            tableModel.removeTableModelListener(this);
+                            
+                            try {
+                                // Uncheck the other two status columns
+                                for (int col = 3; col <= 5; col++) {
+                                    if (col != column) {
+                                        tableModel.setValueAt(false, row, col);
+                                    }
+                                }
+                            } finally {
+                                // Re-add the listener
+                                tableModel.addTableModelListener(this);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
         JScrollPane scrollPane = new JScrollPane(attendanceTable);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Student Attendance"));
         add(scrollPane, "grow, wrap");
@@ -115,22 +177,36 @@ public class AttendancePanel extends JPanel {
     }
     
     private void loadSections() {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                List<Section> sections = sectionService.listByInstructor(getCurrentInstructorId());
-                sectionCombo.removeAllItems();
-                for (Section section : sections) {
-                    sectionCombo.addItem(section);
+        SwingWorker<List<Section>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<Section> doInBackground() throws Exception {
+                Long instructorId = getCurrentInstructorId();
+                if (instructorId == null) {
+                    throw new IllegalStateException("No instructor ID available");
                 }
-                if (!sections.isEmpty()) {
-                    loadAttendanceForSection();
-                }
-            } catch (Exception e) {
-                logger.error("Error loading sections", e);
-                JOptionPane.showMessageDialog(this, "Error loading sections: " + e.getMessage(), 
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                return sectionService.listByInstructor(instructorId);
             }
-        });
+            
+            @Override
+            protected void done() {
+                try {
+                    List<Section> sections = get();
+                    sectionCombo.removeAllItems();
+                    for (Section section : sections) {
+                        sectionCombo.addItem(section);
+                    }
+                    if (!sections.isEmpty()) {
+                        loadAttendanceForSection();
+                    }
+                } catch (Exception e) {
+                    logger.error("Error loading sections", e);
+                    JOptionPane.showMessageDialog(AttendancePanel.this, 
+                        "Error loading sections: " + e.getMessage(), 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
     }
     
     private void onSectionChanged(ActionEvent e) {
@@ -156,9 +232,12 @@ public class AttendancePanel extends JPanel {
         Section selectedSection = (Section) sectionCombo.getSelectedItem();
         if (selectedSection == null) return;
         
-        SwingUtilities.invokeLater(() -> {
-            try {
-                tableModel.setRowCount(0);
+        SwingWorker<List<Object[]>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<Object[]> doInBackground() throws Exception {
+                List<Object[]> studentRows = new java.util.ArrayList<>();
+                
+                // Background database operations
                 List<Enrollment> enrollments = enrollmentService.listBySection(selectedSection.getSectionId());
                 
                 for (Enrollment enrollment : enrollments) {
@@ -174,18 +253,34 @@ public class AttendancePanel extends JPanel {
                                 false, // Late
                                 ""     // Notes
                             };
-                            tableModel.addRow(row);
+                            studentRows.add(row);
                         }
                     } catch (Exception e) {
                         logger.error("Error loading student data for enrollment {}", enrollment.getEnrollmentId(), e);
                     }
                 }
-            } catch (Exception e) {
-                logger.error("Error loading attendance data", e);
-                JOptionPane.showMessageDialog(this, "Error loading attendance data: " + e.getMessage(), 
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                
+                return studentRows;
             }
-        });
+            
+            @Override
+            protected void done() {
+                try {
+                    List<Object[]> studentRows = get();
+                    tableModel.setRowCount(0);
+                    
+                    for (Object[] row : studentRows) {
+                        tableModel.addRow(row);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error loading attendance data", e);
+                    JOptionPane.showMessageDialog(AttendancePanel.this, 
+                        "Error loading attendance data: " + e.getMessage(), 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
     }
     
     private void markAllPresent(ActionEvent e) {
@@ -227,12 +322,20 @@ public class AttendancePanel extends JPanel {
                     
                     for (int i = 0; i < tableModel.getRowCount(); i++) {
                         boolean present = (Boolean) tableModel.getValueAt(i, 3);
-                        boolean absent = (Boolean) tableModel.getValueAt(i, 4);
                         boolean late = (Boolean) tableModel.getValueAt(i, 5);
                         
-                        if (present) presentCount++;
-                        else if (absent) absentCount++;
-                        if (late) lateCount++;
+                        // Mutually exclusive status evaluation with priority order:
+                        // 1. Late (highest priority) - student was present but late
+                        // 2. Present - student was on time
+                        // 3. Absent (default) - student was not present
+                        if (late) {
+                            lateCount++;
+                        } else if (present) {
+                            presentCount++;
+                        } else {
+                            // If neither late nor present, count as absent
+                            absentCount++;
+                        }
                     }
                     
                     JOptionPane.showMessageDialog(this, 
@@ -309,9 +412,56 @@ public class AttendancePanel extends JPanel {
         reportDialog.setVisible(true);
     }
     
+    /**
+     * Get the current authenticated instructor's ID from the session.
+     * @return The instructor ID, or null if no valid instructor session exists
+     * @throws IllegalStateException if no user session is found
+     */
     private Long getCurrentInstructorId() {
-        // This should get the current instructor ID from session
-        // For now, return a default value
-        return 1L;
+        try {
+            // Safely get current user and handle null case
+            var currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                logger.error("No current user session found. User must be logged in to access instructor features.");
+                throw new IllegalStateException("User session not found. Please log in again.");
+            }
+            
+            Long userId = currentUser.getUserId();
+            if (userId == null) {
+                logger.warn("User ID is null in session, cannot retrieve instructor ID");
+                return null;
+            }
+            
+            // Get instructor record from user ID
+            Instructor instructor;
+            try {
+                instructor = instructorDAO.findByUserId(userId);
+            } catch (Exception dbException) {
+                logger.error("Database error while retrieving instructor for user ID: {}", userId, dbException);
+                throw new RuntimeException("Database error while retrieving instructor information", dbException);
+            }
+            
+            if (instructor == null) {
+                logger.warn("No instructor record found for user ID: {}", userId);
+                return null;
+            }
+            
+            Long instructorId = instructor.getInstructorId();
+            if (instructorId == null) {
+                logger.warn("Instructor ID is null for user ID: {}", userId);
+                return null;
+            }
+            
+            logger.debug("Retrieved instructor ID: {} for user ID: {}", instructorId, userId);
+            return instructorId;
+            
+        } catch (Exception e) {
+            logger.error("Error retrieving current instructor ID from session", e);
+            // Re-throw IllegalStateException for session issues, wrap others in RuntimeException
+            if (e instanceof IllegalStateException) {
+                throw e;
+            }
+            throw new RuntimeException("Failed to retrieve instructor ID", e);
+        }
     }
 }

@@ -39,6 +39,39 @@ public class StudentDAO {
         return list;
     }
 
+    public List<Student> findByIds(List<Long> studentIds) throws SQLException {
+        if (studentIds == null || studentIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Student> students = new ArrayList<>();
+        
+        // Build SQL with IN clause for batch fetch
+        StringBuilder sql = new StringBuilder(BASE_SELECT + " WHERE student_id IN (");
+        for (int i = 0; i < studentIds.size(); i++) {
+            if (i > 0) sql.append(", ");
+            sql.append("?");
+        }
+        sql.append(") ORDER BY student_id");
+        
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            // Set parameters
+            for (int i = 0; i < studentIds.size(); i++) {
+                ps.setLong(i + 1, studentIds.get(i));
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    students.add(map(rs));
+                }
+            }
+        }
+        
+        return students;
+    }
+
     private Student map(ResultSet rs) throws SQLException {
         Student s = new Student();
         s.setStudentId(rs.getLong("student_id"));
