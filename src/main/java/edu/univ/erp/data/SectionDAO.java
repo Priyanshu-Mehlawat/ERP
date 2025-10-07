@@ -37,6 +37,16 @@ public class SectionDAO {
         return list;
     }
 
+    public List<Section> listByInstructor(Long instructorId) {
+        List<Section> list = new ArrayList<>();
+        String sql = BASE_SELECT + " WHERE s.instructor_id = ? ORDER BY c.code, s.section_number";
+        try (Connection conn = DatabaseConnection.getErpConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, instructorId);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) list.add(map(rs)); }
+        } catch (SQLException e) { logger.error("Error listing sections by instructor {}", instructorId, e); }
+        return list;
+    }
+
     public boolean incrementEnrolled(Long sectionId) throws SQLException {
         String sql = "UPDATE sections SET enrolled = enrolled + 1 WHERE section_id = ? AND enrolled < capacity";
         try (Connection conn = DatabaseConnection.getErpConnection(); PreparedStatement ps = conn.prepareStatement(sql)) { ps.setLong(1, sectionId); return ps.executeUpdate() == 1; }

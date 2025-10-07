@@ -14,4 +14,8 @@ public class SectionService {
     public List<Section> listByCourse(Long courseId, String semester, Integer year) { return sectionDAO.listByCourse(courseId, semester, year); }
 
     public List<Section> listOpen(String semester, int year) { return sectionDAO.listOpenSections(semester, year); }
+
+    public List<Section> listByInstructor(Long instructorId) throws SQLException { 
+        return sectionDAO.listByInstructor(instructorId); 
+    }
 }

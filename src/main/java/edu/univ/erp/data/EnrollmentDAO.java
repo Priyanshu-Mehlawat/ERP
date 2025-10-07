@@ -39,6 +39,22 @@ public class EnrollmentDAO {
         try (Connection conn = DatabaseConnection.getErpConnection(); PreparedStatement ps = conn.prepareStatement(sql)) { ps.setString(1, finalGrade); ps.setLong(2, enrollmentId); return ps.executeUpdate() == 1; }
     }
 
+    public List<Enrollment> listBySection(Long sectionId) {
+        List<Enrollment> list = new ArrayList<>();
+        String sql = BASE_SELECT + " WHERE e.section_id = ? AND e.status IN ('ENROLLED', 'COMPLETED') ORDER BY e.enrolled_date";
+        try (Connection conn = DatabaseConnection.getErpConnection(); PreparedStatement ps = conn.prepareStatement(sql)) { 
+            ps.setLong(1, sectionId); 
+            try (ResultSet rs = ps.executeQuery()) { 
+                while (rs.next()) {
+                    list.add(map(rs)); 
+                } 
+            } 
+        } catch (SQLException e) { 
+            logger.error("Error listing enrollments for section {}", sectionId, e); 
+        }
+        return list;
+    }
+
     private Enrollment map(ResultSet rs) throws SQLException {
         Enrollment e = new Enrollment();
         e.setEnrollmentId(rs.getLong("enrollment_id"));

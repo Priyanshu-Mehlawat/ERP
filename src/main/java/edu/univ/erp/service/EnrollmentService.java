@@ -75,4 +75,14 @@ public class EnrollmentService {
     }
 
     public List<Enrollment> listByStudent(Long studentId) { return enrollmentDAO.listByStudent(studentId); }
+
+    public List<Enrollment> listBySection(Long sectionId) { return enrollmentDAO.listBySection(sectionId); }
+
+    public boolean updateFinalGrade(Long enrollmentId, String finalGrade) {
+        try {
+            return enrollmentDAO.updateFinalGrade(enrollmentId, finalGrade);
+        } catch (SQLException e) {
+            return false;
+        }
+    }
 }
