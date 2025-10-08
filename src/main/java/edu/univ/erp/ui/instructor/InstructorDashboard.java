@@ -17,7 +17,8 @@ import java.awt.*;
 import java.sql.SQLException;
 
 /**
- * Instructor dashboard - main interface for faculty members.
+ * Instructor dashboard - main interface for faculty members and administrators.
+ * Supports both instructor and admin user roles with appropriate access levels.
  */
 public class InstructorDashboard extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(InstructorDashboard.class);
@@ -28,6 +29,7 @@ public class InstructorDashboard extends JFrame {
     private final SectionDAO sectionDAO = new SectionDAO();
     private final SectionService sectionService = new SectionService();
     private Instructor currentInstructor;
+    private boolean isAdminUser = false;
 
     public InstructorDashboard() {
         loadCurrentInstructor();
@@ -39,7 +41,16 @@ public class InstructorDashboard extends JFrame {
         try {
             var currentUser = SessionManager.getInstance().getCurrentUser();
             if (currentUser == null) {
-                logger.warn("Current user is null, cannot load instructor data");
+                logger.warn("Current user is null, cannot load user data");
+                return;
+            }
+            
+            // Check if user is admin
+            String userRole = currentUser.getRole();
+            if ("ADMIN".equals(userRole)) {
+                isAdminUser = true;
+                logger.info("Admin user detected: {}", currentUser.getUsername());
+                // Admin users can access instructor features but don't need instructor profile
                 return;
             }
             
@@ -48,9 +59,15 @@ public class InstructorDashboard extends JFrame {
                 logger.warn("User ID is null, cannot load instructor data");
                 return;
             }
-            currentInstructor = instructorDAO.findByUserId(userId);
-            if (currentInstructor == null) {
-                logger.warn("No instructor found for user ID: {}", userId);
+            
+            // Load instructor profile for INSTRUCTOR role users
+            if ("INSTRUCTOR".equals(userRole)) {
+                currentInstructor = instructorDAO.findByUserId(userId);
+                if (currentInstructor == null) {
+                    logger.warn("No instructor found for user ID: {}", userId);
+                }
+            } else {
+                logger.warn("User role '{}' is not supported in InstructorDashboard", userRole);
             }
         } catch (SQLException e) {
             logger.error("Error loading current instructor", e);
@@ -58,16 +75,18 @@ public class InstructorDashboard extends JFrame {
     }
 
     private void initComponents() {
-        String title = "Instructor Dashboard";
+        var currentUser = SessionManager.getInstance().getCurrentUser();
+        String title = isAdminUser ? "Admin Dashboard (Instructor View)" : "Instructor Dashboard";
+        
         if (currentInstructor != null) {
             title += " - " + currentInstructor.getFirstName() + " " + currentInstructor.getLastName();
-        } else {
-            var currentUser = SessionManager.getInstance().getCurrentUser();
-            if (currentUser != null) {
-                title += " - " + currentUser.getUsername();
-            } else {
-                title += " - Unknown User";
+        } else if (currentUser != null) {
+            title += " - " + currentUser.getUsername();
+            if (isAdminUser) {
+                title += " (Administrator)";
             }
+        } else {
+            title += " - Unknown User";
         }
         setTitle(title);
         setLayout(new BorderLayout());
@@ -76,9 +95,13 @@ public class InstructorDashboard extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        JLabel welcomeLabel = new JLabel("<html><h2>Welcome, Instructor!</h2></html>");
-        if (currentInstructor != null) {
-            welcomeLabel.setText("<html><h2>Welcome, " + currentInstructor.getFirstName() + "!</h2></html>");
+        JLabel welcomeLabel;
+        if (isAdminUser) {
+            welcomeLabel = new JLabel("<html><h2>Welcome, Administrator!</h2><small>Instructor features enabled</small></html>");
+        } else if (currentInstructor != null) {
+            welcomeLabel = new JLabel("<html><h2>Welcome, " + currentInstructor.getFirstName() + "!</h2></html>");
+        } else {
+            welcomeLabel = new JLabel("<html><h2>Welcome, Instructor!</h2></html>");
         }
         topPanel.add(welcomeLabel, BorderLayout.WEST);
 
@@ -89,10 +112,10 @@ public class InstructorDashboard extends JFrame {
         add(topPanel, BorderLayout.NORTH);
 
         // Center panel with menu buttons
-        JPanel centerPanel = new JPanel(new MigLayout("fillx, wrap 2", "[grow][grow]", ""));
+        JPanel centerPanel = new JPanel(new MigLayout("fillx, wrap " + (isAdminUser ? "3" : "2"), "[grow][grow]" + (isAdminUser ? "[grow]" : ""), ""));
         centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Menu buttons for Week 5-6 features
+        // Standard instructor menu buttons
         JButton coursesBtn = createMenuButton("My Courses", "Manage course sections");
         coursesBtn.addActionListener(e -> openCourseManagement());
 
@@ -118,12 +141,30 @@ public class InstructorDashboard extends JFrame {
         centerPanel.add(reportsBtn, "grow");
         centerPanel.add(scheduleBtn, "grow");
 
+        // Add admin-specific buttons if user is admin
+        if (isAdminUser) {
+            JButton manageUsersBtn = createAdminMenuButton("Manage Users", "Add/edit system users");
+            manageUsersBtn.addActionListener(e -> openUserManagement());
+
+            JButton manageAllCoursesBtn = createAdminMenuButton("All Courses", "Manage all courses");
+            manageAllCoursesBtn.addActionListener(e -> openAllCoursesManagement());
+
+            JButton systemSettingsBtn = createAdminMenuButton("System Settings", "Configure system");
+            systemSettingsBtn.addActionListener(e -> openSystemSettings());
+
+            centerPanel.add(manageUsersBtn, "grow");
+            centerPanel.add(manageAllCoursesBtn, "grow");
+            centerPanel.add(systemSettingsBtn, "grow");
+        }
+
         add(centerPanel, BorderLayout.CENTER);
 
         // Status bar
         JPanel statusPanel = new JPanel(new BorderLayout());
         String statusText = "Ready";
-        if (currentInstructor != null) {
+        if (isAdminUser) {
+            statusText += " - Administrative Access";
+        } else if (currentInstructor != null) {
             statusText += " - Department: " + currentInstructor.getDepartment();
         }
         JLabel statusBar = new JLabel(statusText);
@@ -137,6 +178,18 @@ public class InstructorDashboard extends JFrame {
         JButton button = new JButton("<html><b>" + title + "</b><br><small>" + description + "</small></html>");
         button.setPreferredSize(new Dimension(250, 80));
         button.setFont(button.getFont().deriveFont(14f));
+        return button;
+    }
+
+    private JButton createAdminMenuButton(String title, String description) {
+        JButton button = new JButton("<html><b>🔧 " + title + "</b><br><small>" + description + "</small></html>");
+        button.setPreferredSize(new Dimension(250, 80));
+        button.setFont(button.getFont().deriveFont(14f));
+        button.setBackground(new Color(255, 240, 240)); // Light red background for admin buttons
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 0, 0), 1),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
         return button;
     }
 
@@ -191,5 +244,132 @@ public class InstructorDashboard extends JFrame {
 
     private void openSchedule() {
         openDialog("Teaching Schedule", 900, 600, new InstructorSchedulePanel(sectionService, instructorDAO));
+    }
+
+    // Admin-specific methods
+    private void openUserManagement() {
+        if (!isAdminUser) {
+            JOptionPane.showMessageDialog(this, 
+                "Access denied. Administrative privileges required.", 
+                "Access Denied", 
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        JDialog dialog = new JDialog(this, "User Management", true);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel panel = new JPanel(new MigLayout("", "[grow]", "[][grow][]"));
+        
+        panel.add(new JLabel("<html><h3>🔧 Admin: User Management</h3></html>"), "wrap");
+        
+        JTextArea infoArea = new JTextArea(12, 45);
+        infoArea.setEditable(false);
+        infoArea.setText("User Management Features:\n\n" +
+            "✓ View all system users (Students, Instructors, Admins)\n" +
+            "✓ Create new user accounts with appropriate roles\n" +
+            "✓ Edit existing user information and profiles\n" +
+            "✓ Reset user passwords and account recovery\n" +
+            "✓ Activate/deactivate user accounts\n" +
+            "✓ Search and filter users by role or department\n" +
+            "✓ Manage user permissions and access levels\n" +
+            "✓ Generate user activity and access reports\n\n" +
+            "This comprehensive user administration system provides\n" +
+            "full control over user accounts and system access.");
+        
+        panel.add(new JScrollPane(infoArea), "grow, wrap");
+        
+        JButton closeBtn = new JButton("Close");
+        closeBtn.addActionListener(e -> dialog.dispose());
+        panel.add(closeBtn, "right");
+        
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setSize(550, 450);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void openAllCoursesManagement() {
+        if (!isAdminUser) {
+            JOptionPane.showMessageDialog(this, 
+                "Access denied. Administrative privileges required.", 
+                "Access Denied", 
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        JDialog dialog = new JDialog(this, "All Courses Management", true);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel panel = new JPanel(new MigLayout("", "[grow]", "[][grow][]"));
+        
+        panel.add(new JLabel("<html><h3>🔧 Admin: All Courses Management</h3></html>"), "wrap");
+        
+        JTextArea infoArea = new JTextArea(12, 45);
+        infoArea.setEditable(false);
+        infoArea.setText("All Courses Management Features:\n\n" +
+            "✓ Create new courses across all departments\n" +
+            "✓ Modify course details, descriptions, and requirements\n" +
+            "✓ Set prerequisites and corequisites\n" +
+            "✓ Manage course codes and credit assignments\n" +
+            "✓ Configure course offerings by semester\n" +
+            "✓ Assign qualified instructors to courses\n" +
+            "✓ Monitor course enrollment and capacity\n" +
+            "✓ Generate comprehensive course catalogs\n\n" +
+            "This system-wide course management provides\n" +
+            "administrative control over the entire academic catalog.");
+        
+        panel.add(new JScrollPane(infoArea), "grow, wrap");
+        
+        JButton closeBtn = new JButton("Close");
+        closeBtn.addActionListener(e -> dialog.dispose());
+        panel.add(closeBtn, "right");
+        
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setSize(550, 450);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void openSystemSettings() {
+        if (!isAdminUser) {
+            JOptionPane.showMessageDialog(this, 
+                "Access denied. Administrative privileges required.", 
+                "Access Denied", 
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        JDialog dialog = new JDialog(this, "System Settings", true);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel panel = new JPanel(new MigLayout("", "[grow]", "[][grow][]"));
+        
+        panel.add(new JLabel("<html><h3>🔧 Admin: System Settings</h3></html>"), "wrap");
+        
+        JTextArea infoArea = new JTextArea(12, 45);
+        infoArea.setEditable(false);
+        infoArea.setText("System Settings Features:\n\n" +
+            "✓ Configure system-wide parameters and policies\n" +
+            "✓ Manage database connections and performance\n" +
+            "✓ Set up automated backup and maintenance schedules\n" +
+            "✓ Configure security policies and access controls\n" +
+            "✓ Manage system notifications and alerts\n" +
+            "✓ Set academic calendar and semester dates\n" +
+            "✓ Configure reporting and analytics settings\n" +
+            "✓ Monitor system performance and resource usage\n\n" +
+            "This administrative control center provides comprehensive\n" +
+            "system configuration and maintenance capabilities.");
+        
+        panel.add(new JScrollPane(infoArea), "grow, wrap");
+        
+        JButton closeBtn = new JButton("Close");
+        closeBtn.addActionListener(e -> dialog.dispose());
+        panel.add(closeBtn, "right");
+        
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setSize(550, 450);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 }

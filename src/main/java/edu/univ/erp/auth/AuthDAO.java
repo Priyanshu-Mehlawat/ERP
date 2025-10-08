@@ -143,4 +143,119 @@ public class AuthDAO {
             throw e;
         }
     }
+
+    /**
+     * Get all users from the auth database.
+     */
+    public java.util.List<User> getAllUsers() throws SQLException {
+        String sql = "SELECT user_id, username, role, password_hash, status, failed_login_attempts, last_login " +
+                     "FROM users_auth ORDER BY username";
+        
+        java.util.List<User> users = new java.util.ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getLong("user_id"));
+                user.setUsername(rs.getString("username"));
+                user.setRole(rs.getString("role"));
+                user.setPasswordHash(rs.getString("password_hash"));
+                user.setStatus(rs.getString("status"));
+                user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
+                Timestamp lastLogin = rs.getTimestamp("last_login");
+                if (lastLogin != null) {
+                    user.setLastLogin(lastLogin.toLocalDateTime());
+                }
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            logger.error("Error getting all users", e);
+            throw e;
+        }
+        return users;
+    }
+
+    /**
+     * Find user by ID.
+     */
+    public User findById(Long userId) throws SQLException {
+        String sql = "SELECT user_id, username, role, password_hash, status, failed_login_attempts, last_login " +
+                     "FROM users_auth WHERE user_id = ?";
+
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setLong(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getLong("user_id"));
+                user.setUsername(rs.getString("username"));
+                user.setRole(rs.getString("role"));
+                user.setPasswordHash(rs.getString("password_hash"));
+                user.setStatus(rs.getString("status"));
+                user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
+                Timestamp lastLogin = rs.getTimestamp("last_login");
+                if (lastLogin != null) {
+                    user.setLastLogin(lastLogin.toLocalDateTime());
+                }
+                return user;
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding user by ID: {}", userId, e);
+            throw e;
+        }
+        return null;
+    }
+
+    /**
+     * Delete a user by ID.
+     */
+    public void deleteUser(Long userId) throws SQLException {
+        String sql = "DELETE FROM users_auth WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setLong(1, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error deleting user with ID: {}", userId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Reset password for a user.
+     */
+    public void resetPassword(Long userId, String newPassword) throws SQLException {
+        // Hash the new password using the same utility as during user creation
+        String hashedPassword = edu.univ.erp.auth.PasswordUtil.hashPassword(newPassword);
+        changePassword(userId, hashedPassword);
+    }
+
+    /**
+     * Update user information.
+     */
+    public void updateUser(User user) throws SQLException {
+        String sql = "UPDATE users_auth SET username = ?, role = ?, status = ? WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getRole());
+            stmt.setString(3, user.getStatus());
+            stmt.setLong(4, user.getUserId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error updating user with ID: {}", user.getUserId(), e);
+            throw e;
+        }
+    }
 }

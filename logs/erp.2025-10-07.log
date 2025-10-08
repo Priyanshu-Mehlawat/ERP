@@ -1,0 +1,46 @@
+2025-10-07 14:07:20 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-07 14:07:21 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-07 14:07:21 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-07 14:07:21 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@53b7dde4
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@4f345f19
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-07 14:07:33 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-07 14:07:34 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: inst1
+2025-10-07 14:07:34 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: inst1 (role: INSTRUCTOR)
+2025-10-07 14:17:42 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-07 14:17:43 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-07 14:17:43 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-07 14:17:43 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-07 14:17:59 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-07 14:17:59 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@21e32a68
+2025-10-07 14:17:59 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-07 14:17:59 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-07 14:17:59 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-07 14:18:00 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@4f7ba1e0
+2025-10-07 14:18:00 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-07 14:18:00 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-07 14:18:00 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: inst1
+2025-10-07 14:18:00 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: inst1 (role: INSTRUCTOR)
+2025-10-07 20:29:04 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-07 20:29:04 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-07 20:29:04 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-07 20:29:05 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-07 20:40:36 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-07 20:40:36 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-07 20:40:36 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-07 20:40:36 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-07 20:40:44 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@2545e9da
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@57701f79
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-07 20:40:45 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: stu1
+2025-10-07 20:40:45 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: stu1 (role: STUDENT)
