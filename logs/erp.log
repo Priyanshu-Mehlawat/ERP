@@ -1,51 +1,56 @@
-2025-10-08 15:45:36 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
-2025-10-08 15:45:36 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
-2025-10-08 15:45:36 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
-2025-10-08 15:45:36 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@66e5620
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@1c2090db
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
-2025-10-08 15:45:56 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
-2025-10-08 15:45:56 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)
-2025-10-08 15:46:28 [SwingWorker-pool-1-thread-2] INFO  edu.univ.erp.auth.AuthService - Successful login for user: stu1
-2025-10-08 15:46:28 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: stu1 (role: STUDENT)
-2025-10-08 15:48:34 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: inst1
-2025-10-08 15:48:34 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: inst1 (role: INSTRUCTOR)
-2025-10-08 15:48:58 [AWT-EventQueue-0] DEBUG e.u.e.ui.instructor.GradeEntryPanel - Fetched 1 student names for 1 enrollments
-2025-10-08 15:49:03 [SwingWorker-pool-1-thread-9] DEBUG e.u.e.ui.instructor.AttendancePanel - Retrieved instructor ID: 1 for user ID: 2
-2025-10-08 15:49:27 [AWT-EventQueue-0] DEBUG e.u.erp.ui.instructor.ReportsPanel - Retrieved instructor ID: 1 for user ID: 2
-2025-10-08 15:50:06 [SwingWorker-pool-1-thread-2] DEBUG e.u.e.u.i.InstructorSchedulePanel - Retrieved instructor ID: 1 for user ID: 2
-2025-10-08 15:50:06 [AWT-EventQueue-0] INFO  e.u.e.u.i.InstructorSchedulePanel - Loaded 4 sections for instructor schedule
-2025-10-08 15:56:14 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
-2025-10-08 15:56:14 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
-2025-10-08 15:56:14 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
-2025-10-08 15:56:14 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@20f49925
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@17d94d10
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
-2025-10-08 15:56:23 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
-2025-10-08 15:56:23 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)
-2025-10-08 16:06:13 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
-2025-10-08 16:06:13 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
-2025-10-08 16:06:13 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
-2025-10-08 16:06:13 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@7135e236
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@2128a149
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
-2025-10-08 16:06:25 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: admin1
-2025-10-08 16:06:25 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: admin1 (role: ADMIN)
+2025-10-09 19:36:36 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 19:36:37 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 19:36:37 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 19:36:37 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 19:41:37 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 19:41:37 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 19:41:37 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 19:41:37 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 19:45:20 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 19:45:20 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 19:45:20 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 19:45:21 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 19:47:35 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 19:47:36 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 19:47:36 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 19:47:36 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 19:49:42 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 19:49:43 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 19:49:43 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 19:49:43 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 19:53:48 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 19:53:48 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 19:53:48 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 19:53:48 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 19:58:11 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 19:58:11 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 19:58:11 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 19:58:11 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 20:02:48 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 20:02:48 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 20:02:48 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 20:02:48 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 20:07:46 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 20:07:46 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 20:07:46 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 20:07:46 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 20:28:19 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 20:28:19 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 20:28:19 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 20:28:19 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 20:31:35 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 20:31:36 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 20:31:36 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 20:31:36 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 20:39:50 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 20:39:50 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 20:39:50 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 20:39:51 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 20:47:28 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 20:47:29 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 20:47:29 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 20:47:29 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-09 20:59:04 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-09 20:59:04 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-09 20:59:04 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-09 20:59:04 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed

@@ -332,7 +332,7 @@ public class ReportsPanel extends JPanel {
                 
                 for (Grade grade : grades) {
                     // Skip grades with null or invalid values to prevent NPE and ArithmeticException
-                    if (grade.getScore() == null || grade.getMaxScore() == null || grade.getMaxScore() == 0.0) {
+                    if (grade.getScore() == null || grade.getMaxScore() == null || grade.getMaxScore() <= 0.0) {
                         continue; // Skip grades that can't be computed safely
                     }
                     

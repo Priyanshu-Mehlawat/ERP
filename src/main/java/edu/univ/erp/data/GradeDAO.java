@@ -35,6 +35,23 @@ public class GradeDAO {
         try (Connection conn = DatabaseConnection.getErpConnection(); PreparedStatement ps = conn.prepareStatement(sql)) { ps.setLong(1, enrollmentId); try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return rs.getDouble(1);} } catch (SQLException e) { logger.error("Error computing weight sum", e);} return 0.0;
     }
 
+    public List<String> getDistinctComponentsForSection(Long sectionId) throws SQLException {
+        List<String> components = new ArrayList<>();
+        String sql = "SELECT DISTINCT g.component FROM grades g " +
+                    "JOIN enrollments e ON g.enrollment_id = e.enrollment_id " +
+                    "WHERE e.section_id = ? ORDER BY g.component";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, sectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    components.add(rs.getString("component"));
+                }
+            }
+        }
+        return components;
+    }
+
     private Grade map(ResultSet rs) throws SQLException {
         Grade g = new Grade();
         g.setGradeId(rs.getLong("grade_id"));

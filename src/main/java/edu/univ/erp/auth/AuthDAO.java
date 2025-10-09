@@ -24,21 +24,10 @@ public class AuthDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getLong("user_id"));
-                user.setUsername(rs.getString("username"));
-                user.setRole(rs.getString("role"));
-                user.setPasswordHash(rs.getString("password_hash"));
-                user.setStatus(rs.getString("status"));
-                user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
-                Timestamp lastLogin = rs.getTimestamp("last_login");
-                if (lastLogin != null) {
-                    user.setLastLogin(lastLogin.toLocalDateTime());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
                 }
-                return user;
             }
         } catch (SQLException e) {
             logger.error("Error finding user by username: {}", username, e);
@@ -145,42 +134,100 @@ public class AuthDAO {
     }
 
     /**
-     * Get all users from the auth database.
+     * Helper method to map ResultSet data to User object.
+     * Maps all available fields from the ResultSet including password_hash if present.
+     * @param rs ResultSet containing user data
+     * @return User object with mapped data
+     * @throws SQLException if database access error occurs
      */
-    public java.util.List<User> getAllUsers() throws SQLException {
-        String sql = "SELECT user_id, username, role, password_hash, status, failed_login_attempts, last_login " +
-                     "FROM users_auth ORDER BY username";
+    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        User user = new User();
+        user.setUserId(rs.getLong("user_id"));
+        user.setUsername(rs.getString("username"));
+        user.setRole(rs.getString("role"));
+        user.setStatus(rs.getString("status"));
+        user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
+        
+        // Handle last_login timestamp conversion
+        Timestamp lastLogin = rs.getTimestamp("last_login");
+        if (lastLogin != null) {
+            user.setLastLogin(lastLogin.toLocalDateTime());
+        }
+        
+        // Include password_hash if present in ResultSet (some queries exclude it for security)
+        // Check ResultSetMetaData to determine if password_hash column exists
+        ResultSetMetaData metaData = rs.getMetaData();
+        boolean hasPasswordHashColumn = false;
+        int columnCount = metaData.getColumnCount();
+        
+        for (int i = 1; i <= columnCount; i++) {
+            if ("password_hash".equalsIgnoreCase(metaData.getColumnLabel(i))) {
+                hasPasswordHashColumn = true;
+                break;
+            }
+        }
+        
+        if (hasPasswordHashColumn) {
+            String passwordHash = rs.getString("password_hash");
+            user.setPasswordHash(passwordHash);
+        }
+        // If column doesn't exist, leave password_hash null
+        
+        return user;
+    }
+
+    /**
+     * Get all users from the auth database with pagination support.
+     * @param limit maximum number of users to return
+     * @param offset number of users to skip
+     * @return list of users (excluding password_hash for security)
+     */
+    public java.util.List<User> getAllUsers(int limit, int offset) throws SQLException {
+        // Input validation to prevent abuse and ensure reasonable limits
+        if (limit < 1) {
+            throw new IllegalArgumentException("Limit must be at least 1, got: " + limit);
+        }
+        if (limit > 10000) {
+            throw new IllegalArgumentException("Limit cannot exceed 10000, got: " + limit);
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset must be non-negative, got: " + offset);
+        }
+        
+        String sql = "SELECT user_id, username, role, status, failed_login_attempts, last_login " +
+                     "FROM users_auth ORDER BY username LIMIT ? OFFSET ?";
         
         java.util.List<User> users = new java.util.ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getAuthConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            ResultSet rs = stmt.executeQuery();
+            stmt.setInt(1, limit);
+            stmt.setInt(2, offset);
             
-            while (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getLong("user_id"));
-                user.setUsername(rs.getString("username"));
-                user.setRole(rs.getString("role"));
-                user.setPasswordHash(rs.getString("password_hash"));
-                user.setStatus(rs.getString("status"));
-                user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
-                Timestamp lastLogin = rs.getTimestamp("last_login");
-                if (lastLogin != null) {
-                    user.setLastLogin(lastLogin.toLocalDateTime());
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
                 }
-                users.add(user);
             }
         } catch (SQLException e) {
-            logger.error("Error getting all users", e);
+            logger.error("Error getting all users with limit {} and offset {}", limit, offset, e);
             throw e;
         }
         return users;
     }
 
     /**
-     * Find user by ID.
+     * Get all users from the auth database (backward compatibility method).
+     * @return list of all users (excluding password_hash for security)
+     */
+    public java.util.List<User> getAllUsers() throws SQLException {
+        // Use a reasonable default page size for backward compatibility
+        return getAllUsers(1000, 0);
+    }
+
+    /**
+     * Find user by ID (includes password_hash for authentication purposes).
      */
     public User findById(Long userId) throws SQLException {
         String sql = "SELECT user_id, username, role, password_hash, status, failed_login_attempts, last_login " +
@@ -190,21 +237,10 @@ public class AuthDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setLong(1, userId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getLong("user_id"));
-                user.setUsername(rs.getString("username"));
-                user.setRole(rs.getString("role"));
-                user.setPasswordHash(rs.getString("password_hash"));
-                user.setStatus(rs.getString("status"));
-                user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
-                Timestamp lastLogin = rs.getTimestamp("last_login");
-                if (lastLogin != null) {
-                    user.setLastLogin(lastLogin.toLocalDateTime());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
                 }
-                return user;
             }
         } catch (SQLException e) {
             logger.error("Error finding user by ID: {}", userId, e);

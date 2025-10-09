@@ -3,6 +3,7 @@ package edu.univ.erp.ui.auth;
 import com.formdev.flatlaf.FlatClientProperties;
 import edu.univ.erp.auth.AuthService;
 import edu.univ.erp.auth.SessionManager;
+import edu.univ.erp.auth.UserRole;
 import edu.univ.erp.data.DatabaseConnection;
 import edu.univ.erp.domain.User;
 import edu.univ.erp.ui.admin.AdminDashboard;
@@ -170,17 +171,27 @@ public class LoginFrame extends JFrame {
             try {
                 JFrame dashboard;
                 switch (user.getRole()) {
-                    case "ADMIN":
+                    case UserRole.ADMIN:
                         dashboard = new AdminDashboard();
                         break;
-                    case "INSTRUCTOR":
-                        dashboard = new InstructorDashboard();
+                    case UserRole.INSTRUCTOR:
+                        dashboard = InstructorDashboard.create();
+                        if (dashboard == null) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Failed to initialize instructor dashboard",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                         break;
-                    case "STUDENT":
+                    case UserRole.STUDENT:
                         dashboard = new StudentDashboard();
                         break;
                     default:
-                        showError("Unknown role: " + user.getRole());
+                        JOptionPane.showMessageDialog(null,
+                                "Unknown role: " + user.getRole(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
                         return;
                 }
                 dashboard.setVisible(true);

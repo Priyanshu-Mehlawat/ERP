@@ -91,8 +91,11 @@ public class AttendancePanel extends JPanel {
         
         add(controlPanel, "wrap");
         
-        // Attendance table
-        String[] columns = {"Student ID", "Student Name", "Email", "Present", "Absent", "Late", "Notes"};
+        // Attendance table with mutually exclusive status columns:
+        // - On Time: Student arrived on time
+        // - Absent: Student did not attend  
+        // - Late: Student arrived after the start time (distinct from On Time)
+        String[] columns = {"Student ID", "Student Name", "Email", "On Time", "Absent", "Late", "Notes"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public Class<?> getColumnClass(int column) {
@@ -124,11 +127,13 @@ public class AttendancePanel extends JPanel {
                     int row = e.getFirstRow();
                     int column = e.getColumn();
                     
-                    // Only handle attendance status columns (3=Present, 4=Absent, 5=Late)
+                    // Only handle attendance status columns (3=On Time, 4=Absent, 5=Late)
                     if (column >= 3 && column <= 5) {
                         boolean newValue = (Boolean) tableModel.getValueAt(row, column);
                         
-                        // If the checkbox was just checked (newValue is true), uncheck the others
+                        // Enforce mutual exclusivity: On Time, Absent, and Late are distinct statuses.
+                        // When one is checked, automatically uncheck the other two to ensure
+                        // each student has exactly one attendance status.
                         if (newValue) {
                             // Temporarily remove listener to avoid infinite recursion
                             tableModel.removeTableModelListener(this);
@@ -157,7 +162,7 @@ public class AttendancePanel extends JPanel {
         // Action buttons
         JPanel buttonPanel = new JPanel(new MigLayout("insets 0", "[]10[]10[]20[]", "[]"));
         
-        JButton markAllPresentBtn = new JButton("Mark All Present");
+        JButton markAllPresentBtn = new JButton("Mark All On Time");
         markAllPresentBtn.addActionListener(this::markAllPresent);
         buttonPanel.add(markAllPresentBtn);
         
@@ -248,7 +253,7 @@ public class AttendancePanel extends JPanel {
                                 student.getStudentId(),
                                 student.getFirstName() + " " + student.getLastName(),
                                 student.getEmail(),
-                                true,  // Present (default)
+                                true,  // On Time (default)
                                 false, // Absent
                                 false, // Late
                                 ""     // Notes
@@ -285,7 +290,7 @@ public class AttendancePanel extends JPanel {
     
     private void markAllPresent(ActionEvent e) {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            tableModel.setValueAt(true, i, 3);   // Present
+            tableModel.setValueAt(true, i, 3);   // On Time
             tableModel.setValueAt(false, i, 4);  // Absent
             tableModel.setValueAt(false, i, 5);  // Late
         }
@@ -293,7 +298,7 @@ public class AttendancePanel extends JPanel {
     
     private void markAllAbsent(ActionEvent e) {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            tableModel.setValueAt(false, i, 3);  // Present
+            tableModel.setValueAt(false, i, 3);  // On Time
             tableModel.setValueAt(true, i, 4);   // Absent
             tableModel.setValueAt(false, i, 5);  // Late
         }
@@ -324,10 +329,14 @@ public class AttendancePanel extends JPanel {
                         boolean present = (Boolean) tableModel.getValueAt(i, 3);
                         boolean late = (Boolean) tableModel.getValueAt(i, 5);
                         
-                        // Mutually exclusive status evaluation with priority order:
-                        // 1. Late (highest priority) - student was present but late
-                        // 2. Present - student was on time
-                        // 3. Absent (default) - student was not present
+                        // Mutually exclusive status evaluation - exactly one status per student:
+                        // 1. Late (highest priority) - student arrived late (distinct from On Time)
+                        // 2. On Time - student was on time (distinct from Late)  
+                        // 3. Absent (default) - student was not present at all
+                        // 
+                        // Note: Late and On Time are mutually exclusive statuses. A late student
+                        // is counted only as Late, not as On Time, to maintain clear distinction
+                        // between on-time attendance and late attendance for reporting purposes.
                         if (late) {
                             lateCount++;
                         } else if (present) {
@@ -339,7 +348,7 @@ public class AttendancePanel extends JPanel {
                     }
                     
                     JOptionPane.showMessageDialog(this, 
-                        String.format("Attendance saved successfully!\n\nPresent: %d\nAbsent: %d\nLate: %d", 
+                        String.format("Attendance saved successfully!\n\nOn Time: %d\nAbsent: %d\nLate: %d", 
                         presentCount, absentCount, lateCount), 
                         "Success", JOptionPane.INFORMATION_MESSAGE);
                         

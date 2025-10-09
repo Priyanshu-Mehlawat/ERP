@@ -1,6 +1,7 @@
 package edu.univ.erp.ui.instructor;
 
 import edu.univ.erp.auth.SessionManager;
+import edu.univ.erp.auth.UserRole;
 import edu.univ.erp.data.EnrollmentDAO;
 import edu.univ.erp.data.GradeDAO;
 import edu.univ.erp.data.InstructorDAO;
@@ -31,46 +32,80 @@ public class InstructorDashboard extends JFrame {
     private Instructor currentInstructor;
     private boolean isAdminUser = false;
 
-    public InstructorDashboard() {
-        loadCurrentInstructor();
-        initComponents();
-        setupFrame();
+    /**
+     * Private constructor to prevent direct instantiation.
+     * Use create() factory method instead.
+     */
+    private InstructorDashboard() {
+        // Constructor now only handles basic object initialization
+        // No I/O operations performed here
+    }
+    
+    /**
+     * Factory method to create and initialize InstructorDashboard.
+     * Handles database I/O and UI initialization.
+     * 
+     * @return initialized InstructorDashboard instance, or null if initialization fails
+     */
+    public static InstructorDashboard create() {
+        InstructorDashboard dashboard = new InstructorDashboard();
+        
+        try {
+            // Perform I/O operations after object construction
+            if (!dashboard.loadCurrentInstructor()) {
+                logger.error("Failed to load instructor data");
+                return null;
+            }
+            
+            // Initialize UI components
+            dashboard.initComponents();
+            dashboard.setupFrame();
+            
+            return dashboard;
+        } catch (Exception e) {
+            logger.error("Failed to create InstructorDashboard", e);
+            return null;
+        }
     }
 
-    private void loadCurrentInstructor() {
+    private boolean loadCurrentInstructor() {
         try {
             var currentUser = SessionManager.getInstance().getCurrentUser();
             if (currentUser == null) {
                 logger.warn("Current user is null, cannot load user data");
-                return;
+                return false;
             }
             
-            // Check if user is admin
+            // Check if user is admin - use null-safe comparison
             String userRole = currentUser.getRole();
-            if ("ADMIN".equals(userRole)) {
+            if (userRole != null && userRole.equals(UserRole.ADMIN)) {
                 isAdminUser = true;
                 logger.info("Admin user detected: {}", currentUser.getUsername());
                 // Admin users can access instructor features but don't need instructor profile
-                return;
+                return true;
             }
             
             Long userId = currentUser.getUserId();
             if (userId == null) {
                 logger.warn("User ID is null, cannot load instructor data");
-                return;
+                return false;
             }
             
-            // Load instructor profile for INSTRUCTOR role users
-            if ("INSTRUCTOR".equals(userRole)) {
+            // Load instructor profile for INSTRUCTOR role users - use null-safe comparison
+            if (userRole != null && userRole.equals(UserRole.INSTRUCTOR)) {
                 currentInstructor = instructorDAO.findByUserId(userId);
                 if (currentInstructor == null) {
                     logger.warn("No instructor found for user ID: {}", userId);
+                    return false;
                 }
+                return true;
             } else {
                 logger.warn("User role '{}' is not supported in InstructorDashboard", userRole);
+                return false;
             }
         } catch (SQLException e) {
             logger.error("Error loading current instructor", e);
+            return false;
         }
     }
 

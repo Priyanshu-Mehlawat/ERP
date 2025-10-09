@@ -3,15 +3,40 @@ package edu.univ.erp.service;
 import edu.univ.erp.data.EnrollmentDAO;
 import edu.univ.erp.data.GradeDAO;
 import edu.univ.erp.domain.Grade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class GradeService {
+    private static final Logger logger = LoggerFactory.getLogger(GradeService.class);
+    private static final List<String> DEFAULT_COMPONENTS = List.of("Assignment", "Quiz", "Midterm", "Final");
+    
     private final GradeDAO gradeDAO = new GradeDAO();
     private final EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
 
     public List<Grade> listComponents(Long enrollmentId) { return gradeDAO.listByEnrollment(enrollmentId); }
+
+    public List<String> getComponentsForSection(Long sectionId) throws SQLException {
+        // Fail fast with null check for sectionId parameter
+        if (sectionId == null) {
+            throw new IllegalArgumentException("sectionId parameter cannot be null");
+        }
+        
+        try {
+            List<String> components = gradeDAO.getDistinctComponentsForSection(sectionId);
+            if (components == null || components.isEmpty()) {
+                // Return default components if no grades exist for this section or if null returned
+                return DEFAULT_COMPONENTS;
+            }
+            return components;
+        } catch (SQLException e) {
+            // Log the exception with full details before propagating to caller
+            logger.error("Error retrieving components for section {}: {}", sectionId, e.getMessage(), e);
+            throw e;
+        }
+    }
 
     public String addComponent(Long enrollmentId, String component, Double score, double maxScore, double weight) {
         try {

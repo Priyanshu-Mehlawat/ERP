@@ -24,10 +24,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -103,7 +101,25 @@ public class GradeEntryPanel extends JPanel {
                         if (sectionCombo != null) {
                             sectionCombo.setEnabled(true);
                         }
-                        statusLabel.setText("Welcome, " + currentInstructor.getFirstName() + " " + currentInstructor.getLastName());
+                        
+                        // Null-safe name composition with fallbacks
+                        String firstName = currentInstructor.getFirstName() != null ? 
+                            currentInstructor.getFirstName().trim() : "";
+                        String lastName = currentInstructor.getLastName() != null ? 
+                            currentInstructor.getLastName().trim() : "";
+                        
+                        String displayName;
+                        if (firstName.isEmpty() && lastName.isEmpty()) {
+                            displayName = "Unknown Instructor";
+                        } else if (firstName.isEmpty()) {
+                            displayName = lastName;
+                        } else if (lastName.isEmpty()) {
+                            displayName = firstName;
+                        } else {
+                            displayName = firstName + " " + lastName;
+                        }
+                        
+                        statusLabel.setText("Welcome, " + displayName);
                         loadSections();
                     } else {
                         // No instructor found - show error and disable UI
@@ -445,21 +461,37 @@ public class GradeEntryPanel extends JPanel {
                             }
                         }
                         
-                        // Calculated columns
-                        double overall = totalWeight > 0 ? totalScore : 0.0;
-                        String letterGrade = convertToLetterGrade(overall);
-                        
+                        // Add row first with empty calculated columns
                         int overallIndex = FIXED_COLUMNS.length + gradeComponents.size();
                         int letterIndex = overallIndex + 1;
                         
                         if (overallIndex < rowData.length) {
-                            rowData[overallIndex] = overall > 0 ? df.format(overall) : "";
+                            rowData[overallIndex] = "";
                         }
                         if (letterIndex < rowData.length) {
-                            rowData[letterIndex] = letterGrade;
+                            rowData[letterIndex] = "";
                         }
                         
                         gradesModel.addRow(rowData);
+                        
+                        // Calculate and set normalized overall grade using dynamic column lookup
+                        if (totalWeight > 0) {
+                            double overall = totalScore / totalWeight;
+                            String letterGrade = convertToLetterGrade(overall);
+                            
+                            // Use dynamic column lookup and only set when column exists (same as updateRowCalculations)
+                            int overallCol = gradesModel.findColumn("Overall");
+                            if (overallCol != -1) {
+                                int currentRow = gradesModel.getRowCount() - 1;
+                                gradesModel.setValueAt(df.format(overall), currentRow, overallCol);
+                            }
+                            
+                            int letterCol = gradesModel.findColumn("Letter Grade");
+                            if (letterCol != -1) {
+                                int currentRow = gradesModel.getRowCount() - 1;
+                                gradesModel.setValueAt(letterGrade, currentRow, letterCol);
+                            }
+                        }
                     }
                     
                     String courseInfo = section.getCourseCode() + " - " + section.getSectionNumber();
@@ -475,31 +507,15 @@ public class GradeEntryPanel extends JPanel {
     
     /**
      * Get grade components for a specific section
+     * Optimized to use a single DB query instead of N+1 calls
      */
     private List<String> getGradeComponentsForSection(Long sectionId) {
         try {
-            List<Enrollment> enrollments = enrollmentService.listBySection(sectionId);
-            Set<String> componentsSet = new HashSet<>();
-            
-            for (Enrollment enrollment : enrollments) {
-                List<Grade> grades = gradeService.listComponents(enrollment.getEnrollmentId());
-                grades.stream()
-                    .map(Grade::getComponent)
-                    .forEach(componentsSet::add);
-            }
-            
-            List<String> components = new ArrayList<>(componentsSet);
-            components.sort(String::compareTo);
-            
-            // If no components found, return default set
-            if (components.isEmpty()) {
-                components = Arrays.asList("Assignment", "Quiz", "Midterm", "Final");
-            }
-            
-            return components;
-        } catch (Exception e) {
-            logger.error("Error getting grade components for section", e);
-            // Return default components if unable to fetch
+            // Use the new optimized service method that performs a single DB query
+            return gradeService.getComponentsForSection(sectionId);
+        } catch (SQLException e) {
+            logger.error("Database error getting grade components for section {}: {}", sectionId, e.getMessage(), e);
+            // Return default components if unable to fetch due to database error
             return Arrays.asList("Assignment", "Quiz", "Midterm", "Final");
         }
     }
@@ -901,7 +917,7 @@ public class GradeEntryPanel extends JPanel {
                                 // Create new grade component with default weight
                                 double defaultWeight = getDefaultWeight(componentType);
                                 String result = gradeService.addComponent(targetEnrollment.getEnrollmentId(), 
-                                    componentType, gradeValue, 100.0, defaultWeight);
+                                    componentType, gradeValue, 100.0, defaultWeight * 100.0);
                                 return "ADDED".equals(result);
                             }
                         } else {
@@ -997,10 +1013,12 @@ public class GradeEntryPanel extends JPanel {
                     try {
                         double grade = Double.parseDouble(value.toString());
                         String componentType = gradeComponents.get(i);
-                        double weight = getDefaultWeight(componentType);
+                        double weight = getDefaultWeight(componentType) * 100.0; // Convert to percentage
                         
-                        totalPoints += grade * weight;
-                        totalWeight += weight;
+                        // Use percentage weight for consistency with stored weights
+                        double weightDecimal = weight / 100.0; // Convert back to decimal for calculation
+                        totalPoints += grade * weightDecimal;
+                        totalWeight += weightDecimal;
                     } catch (NumberFormatException e) {
                         // Skip invalid values
                     }
@@ -1010,14 +1028,30 @@ public class GradeEntryPanel extends JPanel {
             // Calculate overall grade
             if (totalWeight > 0) {
                 double overallGrade = totalPoints / totalWeight;
-                gradesModel.setValueAt(df.format(overallGrade), row, 6); // Overall column
+                
+                // Use dynamic column lookup instead of hard-coded indices
+                int overallCol = gradesModel.findColumn("Overall");
+                if (overallCol != -1) {
+                    gradesModel.setValueAt(df.format(overallGrade), row, overallCol);
+                }
                 
                 // Calculate letter grade
                 String letterGrade = convertToLetterGrade(overallGrade);
-                gradesModel.setValueAt(letterGrade, row, 7); // Letter Grade column
+                int letterCol = gradesModel.findColumn("Letter Grade");
+                if (letterCol != -1) {
+                    gradesModel.setValueAt(letterGrade, row, letterCol);
+                }
             } else {
-                gradesModel.setValueAt("", row, 6);
-                gradesModel.setValueAt("", row, 7);
+                // Clear values when no weight
+                int overallCol = gradesModel.findColumn("Overall");
+                if (overallCol != -1) {
+                    gradesModel.setValueAt("", row, overallCol);
+                }
+                
+                int letterCol = gradesModel.findColumn("Letter Grade");
+                if (letterCol != -1) {
+                    gradesModel.setValueAt("", row, letterCol);
+                }
             }
         } catch (Exception e) {
             logger.error("Error updating row calculations", e);
