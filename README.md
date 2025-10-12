@@ -170,18 +170,18 @@ erp.db.password=your_password
 - ✅ Basic UI framework
 
 ### Week 3-4: Student Features
-- ⏳ Course catalog browsing
-- ⏳ Section registration/drop
-- ⏳ Timetable view
-- ⏳ Grade viewing
-- ⏳ Transcript export
+- ✅ Course catalog browsing
+- ✅ Section registration/drop
+- ✅ Timetable view
+- ✅ Grade viewing
+- ✅ Transcript export
 
 ### Week 5-6: Instructor Features
-- ⏳ Section management
-- ⏳ Grade entry system
-- ⏳ Final grade computation
-- ⏳ Class statistics
-- ⏳ CSV export
+- ✅ Section management
+- ✅ Grade entry system
+- ✅ Final grade computation
+- ✅ Class statistics
+- ✅ CSV export
 
 ### Week 7: Admin Features
 - ⏳ User management
