@@ -100,9 +100,17 @@ public class AdminDashboard extends JFrame {
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 18));
         topPanel.add(welcomeLabel, BorderLayout.WEST);
 
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        
+        JButton changePasswordBtn = new JButton("Change Password");
+        changePasswordBtn.addActionListener(e -> openChangePasswordDialog());
+        rightPanel.add(changePasswordBtn);
+        
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> logout());
-        topPanel.add(logoutButton, BorderLayout.EAST);
+        rightPanel.add(logoutButton);
+        
+        topPanel.add(rightPanel, BorderLayout.EAST);
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -211,59 +219,40 @@ public class AdminDashboard extends JFrame {
     }
     
     private void openUserManagement() {
-        showInformationDialog("User Management", 
-            "User Management Features:\n\n" +
-            "• View all system users (Students, Instructors, Admins)\n" +
-            "• Create new user accounts with appropriate roles\n" +
-            "• Edit existing user information\n" +
-            "• Reset user passwords\n" +
-            "• Activate/deactivate user accounts\n" +
-            "• Search and filter users by role or name\n\n" +
-            "Current System Status:\n" +
-            "• Authentication system is active\n" +
-            "• User roles: STUDENT, INSTRUCTOR, ADMIN\n" +
-            "• Password encryption enabled\n" +
-            "• Session management active\n\n" +
-            "This feature provides comprehensive user administration\n" +
-            "capabilities for system administrators.");
+        JDialog dialog = new JDialog(this, "User Management", true);
+        dialog.setLayout(new BorderLayout());
+        
+        // Create and add the user management panel
+        UserManagementPanel userPanel = new UserManagementPanel();
+        dialog.add(userPanel, BorderLayout.CENTER);
+        
+        dialog.setSize(900, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     private void openCourseManagement() {
-        showInformationDialog("Course Management",
-            "Course Management Features:\n\n" +
-            "• Create new courses across all departments\n" +
-            "• Edit course details (title, description, credits)\n" +
-            "• Set course prerequisites and requirements\n" +
-            "• Manage course codes and numbering\n" +
-            "• Archive or delete unused courses\n" +
-            "• Search courses by department or code\n\n" +
-            "Course Information Managed:\n" +
-            "• Course code (e.g., CS101, MATH201)\n" +
-            "• Course title and description\n" +
-            "• Credit hours and contact hours\n" +
-            "• Department and program association\n" +
-            "• Prerequisites and corequisites\n\n" +
-            "This system maintains the master catalog of all\n" +
-            "courses available in the university.");
+        JDialog dialog = new JDialog(this, "Course Catalog Management", true);
+        dialog.setLayout(new BorderLayout());
+        
+        CourseManagementPanel coursePanel = new CourseManagementPanel();
+        dialog.add(coursePanel, BorderLayout.CENTER);
+        
+        dialog.setSize(1000, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     private void openSectionManagement() {
-        showInformationDialog("Section Management",
-            "Section Management Features:\n\n" +
-            "• Create course sections for each semester\n" +
-            "• Set section schedules (days, times, rooms)\n" +
-            "• Manage section capacity and enrollment limits\n" +
-            "• Assign section numbers and identifiers\n" +
-            "• Configure lab, lecture, and tutorial sections\n" +
-            "• Monitor section enrollment status\n\n" +
-            "Section Configuration:\n" +
-            "• Section numbering (A, B, L1, L2, etc.)\n" +
-            "• Time slots and classroom assignments\n" +
-            "• Enrollment capacity management\n" +
-            "• Semester and academic year tracking\n" +
-            "• Section type designation (Lecture, Lab, Tutorial)\n\n" +
-            "This system manages the offering of course sections\n" +
-            "and their scheduling parameters.");
+        JDialog dialog = new JDialog(this, "Section Management", true);
+        dialog.setLayout(new BorderLayout());
+        
+        SectionManagementPanel sectionPanel = new SectionManagementPanel();
+        dialog.add(sectionPanel, BorderLayout.CENTER);
+        
+        dialog.setSize(1000, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     private void openInstructorAssignment() {
@@ -287,24 +276,16 @@ public class AdminDashboard extends JFrame {
     }
     
     private void toggleMaintenanceMode() {
-        int result = JOptionPane.showConfirmDialog(this,
-            "Are you sure you want to toggle maintenance mode?\n" +
-            "This will affect all system users.",
-            "Maintenance Mode",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE);
-            
-        if (result == JOptionPane.YES_OPTION) {
-            // For now, just show a message
-            JOptionPane.showMessageDialog(this,
-                "Maintenance mode functionality will be implemented soon.\n" +
-                "This would typically:\n" +
-                "• Put the system in maintenance mode\n" +
-                "• Prevent new logins\n" +
-                "• Display maintenance message to users",
-                "Maintenance Mode",
-                JOptionPane.INFORMATION_MESSAGE);
-        }
+        // Open settings panel where maintenance mode can be configured
+        JDialog dialog = new JDialog(this, "System Settings", true);
+        dialog.setLayout(new BorderLayout());
+        
+        SettingsPanel settingsPanel = new SettingsPanel();
+        dialog.add(settingsPanel, BorderLayout.CENTER);
+        
+        dialog.setSize(800, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     private void openBackupRestore() {
@@ -616,6 +597,10 @@ public class AdminDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 500);
         setLocationRelativeTo(null);
+    }
+
+    private void openChangePasswordDialog() {
+        new edu.univ.erp.ui.auth.ChangePasswordDialog(this).setVisible(true);
     }
 
     private void logout() {

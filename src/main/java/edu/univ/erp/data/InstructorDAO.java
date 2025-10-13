@@ -38,6 +38,19 @@ public class InstructorDAO {
         return list;
     }
 
+    public List<Instructor> findAll() throws SQLException {
+        List<Instructor> list = new ArrayList<>();
+        String sql = BASE_SELECT + " ORDER BY last_name, first_name";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(map(rs));
+            }
+        }
+        return list;
+    }
+
     private Instructor map(ResultSet rs) throws SQLException {
         Instructor i = new Instructor();
         i.setInstructorId(rs.getLong("instructor_id"));

@@ -267,16 +267,7 @@ public class AuthDAO {
     }
 
     /**
-     * Reset password for a user.
-     */
-    public void resetPassword(Long userId, String newPassword) throws SQLException {
-        // Hash the new password using the same utility as during user creation
-        String hashedPassword = edu.univ.erp.auth.PasswordUtil.hashPassword(newPassword);
-        changePassword(userId, hashedPassword);
-    }
-
-    /**
-     * Update user information.
+     * Update user information (full User object).
      */
     public void updateUser(User user) throws SQLException {
         String sql = "UPDATE users_auth SET username = ?, role = ?, status = ? WHERE user_id = ?";
@@ -291,6 +282,62 @@ public class AuthDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Error updating user with ID: {}", user.getUserId(), e);
+            throw e;
+        }
+    }
+    
+    /**
+     * Update user with specific fields (username and role).
+     */
+    public void updateUser(Long userId, String username, String role) throws SQLException {
+        String sql = "UPDATE users_auth SET username = ?, role = ? WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, username);
+            stmt.setString(2, role);
+            stmt.setLong(3, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error updating user with ID: {}", userId, e);
+            throw e;
+        }
+    }
+    
+    /**
+     * Reset password for a user (accepts hashed password).
+     */
+    public void resetPassword(Long userId, String hashedPassword) throws SQLException {
+        String sql = "UPDATE users_auth SET password_hash = ?, failed_login_attempts = 0 WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, hashedPassword);
+            stmt.setLong(2, userId);
+            stmt.executeUpdate();
+            logger.info("Password reset for user ID: {}", userId);
+        } catch (SQLException e) {
+            logger.error("Error resetting password for user ID: {}", userId, e);
+            throw e;
+        }
+    }
+    
+    /**
+     * Unlock a locked user account.
+     */
+    public void unlockAccount(Long userId) throws SQLException {
+        String sql = "UPDATE users_auth SET status = 'ACTIVE', failed_login_attempts = 0 WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setLong(1, userId);
+            stmt.executeUpdate();
+            logger.info("Account unlocked for user ID: {}", userId);
+        } catch (SQLException e) {
+            logger.error("Error unlocking account for user ID: {}", userId, e);
             throw e;
         }
     }

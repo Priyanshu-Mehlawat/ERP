@@ -57,6 +57,113 @@ public class SectionDAO {
         try (Connection conn = DatabaseConnection.getErpConnection(); PreparedStatement ps = conn.prepareStatement(sql)) { ps.setLong(1, sectionId); return ps.executeUpdate() == 1; }
     }
 
+    public List<Section> findAll() throws SQLException {
+        List<Section> list = new ArrayList<>();
+        String sql = BASE_SELECT + " ORDER BY s.semester, s.year, c.code, s.section_number";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(map(rs));
+            }
+        }
+        return list;
+    }
+
+    public Long save(Section section) throws SQLException {
+        String sql = "INSERT INTO sections (course_id, instructor_id, section_number, day_of_week, start_time, end_time, room, capacity, enrolled, semester, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, section.getCourseId());
+            if (section.getInstructorId() != null) {
+                ps.setLong(2, section.getInstructorId());
+            } else {
+                ps.setNull(2, Types.BIGINT);
+            }
+            ps.setString(3, section.getSectionNumber());
+            ps.setString(4, section.getDayOfWeek());
+            if (section.getStartTime() != null) {
+                ps.setTime(5, Time.valueOf(section.getStartTime()));
+            } else {
+                ps.setNull(5, Types.TIME);
+            }
+            if (section.getEndTime() != null) {
+                ps.setTime(6, Time.valueOf(section.getEndTime()));
+            } else {
+                ps.setNull(6, Types.TIME);
+            }
+            ps.setString(7, section.getRoom());
+            ps.setInt(8, section.getCapacity());
+            ps.setInt(9, section.getEnrolled());
+            ps.setString(10, section.getSemester());
+            ps.setInt(11, section.getYear());
+            
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getLong(1);
+                }
+            }
+        }
+        return null;
+    }
+
+    public void update(Section section) throws SQLException {
+        String sql = "UPDATE sections SET course_id = ?, instructor_id = ?, section_number = ?, day_of_week = ?, start_time = ?, end_time = ?, room = ?, capacity = ?, enrolled = ?, semester = ?, year = ? WHERE section_id = ?";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, section.getCourseId());
+            if (section.getInstructorId() != null) {
+                ps.setLong(2, section.getInstructorId());
+            } else {
+                ps.setNull(2, Types.BIGINT);
+            }
+            ps.setString(3, section.getSectionNumber());
+            ps.setString(4, section.getDayOfWeek());
+            if (section.getStartTime() != null) {
+                ps.setTime(5, Time.valueOf(section.getStartTime()));
+            } else {
+                ps.setNull(5, Types.TIME);
+            }
+            if (section.getEndTime() != null) {
+                ps.setTime(6, Time.valueOf(section.getEndTime()));
+            } else {
+                ps.setNull(6, Types.TIME);
+            }
+            ps.setString(7, section.getRoom());
+            ps.setInt(8, section.getCapacity());
+            ps.setInt(9, section.getEnrolled());
+            ps.setString(10, section.getSemester());
+            ps.setInt(11, section.getYear());
+            ps.setLong(12, section.getSectionId());
+            
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(Long sectionId) throws SQLException {
+        String sql = "DELETE FROM sections WHERE section_id = ?";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, sectionId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void assignInstructor(Long sectionId, Long instructorId) throws SQLException {
+        String sql = "UPDATE sections SET instructor_id = ? WHERE section_id = ?";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (instructorId != null) {
+                ps.setLong(1, instructorId);
+            } else {
+                ps.setNull(1, Types.BIGINT);
+            }
+            ps.setLong(2, sectionId);
+            ps.executeUpdate();
+        }
+    }
+
     private Section map(ResultSet rs) throws SQLException {
         Section s = new Section();
         s.setSectionId(rs.getLong("section_id"));

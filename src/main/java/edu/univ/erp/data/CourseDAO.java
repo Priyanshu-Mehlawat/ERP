@@ -81,4 +81,47 @@ public class CourseDAO {
         c.setDepartment(rs.getString("department"));
         return c;
     }
+    
+    public Long save(Course course) throws SQLException {
+        String sql = "INSERT INTO courses (code, title, description, credits, department) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getErpConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, course.getCode());
+            ps.setString(2, course.getTitle());
+            ps.setString(3, course.getDescription());
+            ps.setInt(4, course.getCredits());
+            ps.setString(5, course.getDepartment());
+            
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getLong(1);
+                }
+            }
+        }
+        return null;
+    }
+    
+    public void update(Course course) throws SQLException {
+        String sql = "UPDATE courses SET title = ?, description = ?, credits = ?, department = ? WHERE course_id = ?";
+        try (Connection conn = DatabaseConnection.getErpConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, course.getTitle());
+            ps.setString(2, course.getDescription());
+            ps.setInt(3, course.getCredits());
+            ps.setString(4, course.getDepartment());
+            ps.setLong(5, course.getCourseId());
+            
+            ps.executeUpdate();
+        }
+    }
+    
+    public void delete(Long courseId) throws SQLException {
+        String sql = "DELETE FROM courses WHERE course_id = ?";
+        try (Connection conn = DatabaseConnection.getErpConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, courseId);
+            ps.executeUpdate();
+        }
+    }
 }

@@ -140,9 +140,15 @@ public class InstructorDashboard extends JFrame {
         }
         topPanel.add(welcomeLabel, BorderLayout.WEST);
 
+        // Right side buttons panel
+        JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        JButton changePasswordBtn = new JButton("Change Password");
+        changePasswordBtn.addActionListener(e -> openChangePasswordDialog());
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> logout());
-        topPanel.add(logoutButton, BorderLayout.EAST);
+        topButtonsPanel.add(changePasswordBtn);
+        topButtonsPanel.add(logoutButton);
+        topPanel.add(topButtonsPanel, BorderLayout.EAST);
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -232,6 +238,10 @@ public class InstructorDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
+    }
+
+    private void openChangePasswordDialog() {
+        new edu.univ.erp.ui.auth.ChangePasswordDialog(this).setVisible(true);
     }
 
     private void logout() {

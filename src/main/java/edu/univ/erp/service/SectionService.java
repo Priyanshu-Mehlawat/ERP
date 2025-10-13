@@ -18,4 +18,8 @@ public class SectionService {
     public List<Section> listByInstructor(Long instructorId) throws SQLException { 
         return sectionDAO.listByInstructor(instructorId); 
     }
+
+    public List<Section> listAllSections() throws SQLException {
+        return sectionDAO.findAll();
+    }
 }
