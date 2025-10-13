@@ -55,6 +55,20 @@ public class EnrollmentDAO {
         return list;
     }
 
+    public Enrollment findById(Long enrollmentId) throws SQLException {
+        String sql = BASE_SELECT + " WHERE e.enrollment_id = ?";
+        try (Connection conn = DatabaseConnection.getErpConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, enrollmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return map(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     private Enrollment map(ResultSet rs) throws SQLException {
         Enrollment e = new Enrollment();
         e.setEnrollmentId(rs.getLong("enrollment_id"));

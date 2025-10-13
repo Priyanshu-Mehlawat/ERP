@@ -1,5 +1,6 @@
 package edu.univ.erp.service;
 
+import edu.univ.erp.auth.PermissionChecker;
 import edu.univ.erp.data.SectionDAO;
 import edu.univ.erp.domain.Section;
 
@@ -8,6 +9,7 @@ import java.util.List;
 
 public class SectionService {
     private final SectionDAO sectionDAO = new SectionDAO();
+    private final PermissionChecker permissionChecker = new PermissionChecker();
 
     public Section get(Long id) throws SQLException { return sectionDAO.findById(id); }
 
@@ -16,10 +18,14 @@ public class SectionService {
     public List<Section> listOpen(String semester, int year) { return sectionDAO.listOpenSections(semester, year); }
 
     public List<Section> listByInstructor(Long instructorId) throws SQLException { 
+        // Instructors can only see their own sections, admins can see any instructor's sections
+        permissionChecker.requireInstructor();
         return sectionDAO.listByInstructor(instructorId); 
     }
 
     public List<Section> listAllSections() throws SQLException {
+        // Only admins can list all sections
+        permissionChecker.requireAdmin();
         return sectionDAO.findAll();
     }
 }

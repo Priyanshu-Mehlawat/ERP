@@ -1,5 +1,8 @@
 package edu.univ.erp.service;
 
+import edu.univ.erp.auth.PermissionChecker;
+import edu.univ.erp.auth.PermissionException;
+import edu.univ.erp.auth.SessionManager;
 import edu.univ.erp.data.EnrollmentDAO;
 import edu.univ.erp.data.SectionDAO;
 import edu.univ.erp.domain.Enrollment;
@@ -14,11 +17,25 @@ import edu.univ.erp.data.DatabaseConnection;
 public class EnrollmentService {
     private final EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
     private final SectionDAO sectionDAO = new SectionDAO();
+    private final SettingsService settingsService = new SettingsService();
+    private final PermissionChecker permissionChecker = new PermissionChecker();
 
     /**
      * Enroll a student into a section with basic validations.
      */
     public synchronized String enroll(Long studentId, Long sectionId) {
+        // Check if registration is enabled
+        if (!settingsService.isRegistrationEnabled()) {
+            return "Registration is currently disabled";
+        }
+        
+        // Check permission - students can only enroll themselves
+        try {
+            permissionChecker.requireStudentDataAccess(studentId);
+        } catch (PermissionException e) {
+            return "Permission denied: " + e.getMessage();
+        }
+        
         try {
             // Validate not already enrolled
             if (enrollmentDAO.find(studentId, sectionId) != null) {
@@ -54,6 +71,18 @@ public class EnrollmentService {
     }
 
     public String drop(Long studentId, Long sectionId) {
+        // Check if registration is enabled (affects drops too)
+        if (!settingsService.isRegistrationEnabled()) {
+            return "Registration is currently disabled";
+        }
+        
+        // Check permission - students can only drop themselves
+        try {
+            permissionChecker.requireStudentDataAccess(studentId);
+        } catch (PermissionException e) {
+            return "Permission denied: " + e.getMessage();
+        }
+        
         try {
             Enrollment enrollment = enrollmentDAO.find(studentId, sectionId);
             if (enrollment == null) return "Not enrolled";
@@ -74,16 +103,38 @@ public class EnrollmentService {
         } catch (SQLException e) { return "Error: " + e.getMessage(); }
     }
 
-    public List<Enrollment> listByStudent(Long studentId) { return enrollmentDAO.listByStudent(studentId); }
+    public List<Enrollment> listByStudent(Long studentId) { 
+        try {
+            permissionChecker.requireStudentDataAccess(studentId);
+        } catch (PermissionException e) {
+            // Return empty list rather than throwing exception to maintain API compatibility
+            return List.of();
+        }
+        return enrollmentDAO.listByStudent(studentId); 
+    }
 
     public List<Enrollment> listBySection(Long sectionId) { 
         if (sectionId == null) {
             return List.of(); // Return empty list for null input
         }
+        
+        try {
+            permissionChecker.requireSectionOwnership(sectionId);
+        } catch (PermissionException e) {
+            // Return empty list rather than throwing exception to maintain API compatibility
+            return List.of();
+        }
+        
         return enrollmentDAO.listBySection(sectionId); 
     }
 
     public boolean updateFinalGrade(Long enrollmentId, String finalGrade) {
+        try {
+            permissionChecker.requireEnrollmentOwnership(enrollmentId);
+        } catch (PermissionException e) {
+            return false; // Return false to indicate failure
+        }
+        
         try {
             return enrollmentDAO.updateFinalGrade(enrollmentId, finalGrade);
         } catch (SQLException e) {
