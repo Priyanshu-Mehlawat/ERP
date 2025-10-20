@@ -71,6 +71,25 @@ public class SectionDAO {
     }
 
     public Long save(Section section) throws SQLException {
+        // Input validation for required fields
+        if (section == null) {
+            throw new IllegalArgumentException("Section object must not be null");
+        }
+        if (section.getCourseId() == null) {
+            throw new IllegalArgumentException("Course ID is required");
+        }
+        if (section.getSectionNumber() == null || section.getSectionNumber().trim().isEmpty()) {
+            throw new IllegalArgumentException("Section number is required");
+        }
+        if (section.getDayOfWeek() == null || section.getDayOfWeek().trim().isEmpty()) {
+            throw new IllegalArgumentException("Day of week is required");
+        }
+        if (section.getRoom() == null || section.getRoom().trim().isEmpty()) {
+            throw new IllegalArgumentException("Room is required");
+        }
+        if (section.getSemester() == null || section.getSemester().trim().isEmpty()) {
+            throw new IllegalArgumentException("Semester is required");
+        }
         String sql = "INSERT INTO sections (course_id, instructor_id, section_number, day_of_week, start_time, end_time, room, capacity, enrolled, semester, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getErpConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -83,12 +102,20 @@ public class SectionDAO {
             ps.setString(3, section.getSectionNumber());
             ps.setString(4, section.getDayOfWeek());
             if (section.getStartTime() != null) {
-                ps.setTime(5, Time.valueOf(section.getStartTime()));
+                try {
+                    ps.setTime(5, Time.valueOf(section.getStartTime()));
+                } catch (IllegalArgumentException ex) {
+                    throw new SQLException("Invalid startTime format for Section: '" + section.getStartTime() + "'", ex);
+                }
             } else {
                 ps.setNull(5, Types.TIME);
             }
             if (section.getEndTime() != null) {
-                ps.setTime(6, Time.valueOf(section.getEndTime()));
+                try {
+                    ps.setTime(6, Time.valueOf(section.getEndTime()));
+                } catch (IllegalArgumentException ex) {
+                    throw new SQLException("Invalid endTime format for Section: '" + section.getEndTime() + "'", ex);
+                }
             } else {
                 ps.setNull(6, Types.TIME);
             }
@@ -102,10 +129,11 @@ public class SectionDAO {
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
                     return keys.getLong(1);
+                } else {
+                    throw new SQLException("Failed to retrieve generated section ID after insert");
                 }
             }
         }
-        return null;
     }
 
     public void update(Section section) throws SQLException {
@@ -121,12 +149,20 @@ public class SectionDAO {
             ps.setString(3, section.getSectionNumber());
             ps.setString(4, section.getDayOfWeek());
             if (section.getStartTime() != null) {
-                ps.setTime(5, Time.valueOf(section.getStartTime()));
+                try {
+                    ps.setTime(5, Time.valueOf(section.getStartTime()));
+                } catch (IllegalArgumentException ex) {
+                    throw new SQLException("Invalid startTime format for Section: '" + section.getStartTime() + "'", ex);
+                }
             } else {
                 ps.setNull(5, Types.TIME);
             }
             if (section.getEndTime() != null) {
-                ps.setTime(6, Time.valueOf(section.getEndTime()));
+                try {
+                    ps.setTime(6, Time.valueOf(section.getEndTime()));
+                } catch (IllegalArgumentException ex) {
+                    throw new SQLException("Invalid endTime format for Section: '" + section.getEndTime() + "'", ex);
+                }
             } else {
                 ps.setNull(6, Types.TIME);
             }
@@ -136,8 +172,10 @@ public class SectionDAO {
             ps.setString(10, section.getSemester());
             ps.setInt(11, section.getYear());
             ps.setLong(12, section.getSectionId());
-            
-            ps.executeUpdate();
+            int result = ps.executeUpdate();
+            if (result == 0) {
+                throw new SQLException("No section exists with sectionId=" + section.getSectionId() + ". Update failed.");
+            }
         }
     }
 
@@ -146,7 +184,10 @@ public class SectionDAO {
         try (Connection conn = DatabaseConnection.getErpConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, sectionId);
-            ps.executeUpdate();
+            int result = ps.executeUpdate();
+            if (result == 0) {
+                throw new SQLException("No section with id: " + sectionId);
+            }
         }
     }
 
@@ -160,7 +201,10 @@ public class SectionDAO {
                 ps.setNull(1, Types.BIGINT);
             }
             ps.setLong(2, sectionId);
-            ps.executeUpdate();
+            int affected = ps.executeUpdate();
+            if (affected == 0) {
+                throw new SQLException("No section found with id: " + sectionId);
+            }
         }
     }
 

@@ -77,7 +77,7 @@ public class ChangePasswordDialog extends JDialog {
         mainPanel.add(strengthPanel, "wrap");
         
         mainPanel.add(new JLabel(""), "");
-        JLabel newInfo = new JLabel("<html><i>Minimum 6 characters. Stronger passwords include:<br>" +
+    JLabel newInfo = new JLabel("<html><i>Minimum 8 characters. Stronger passwords include:<br>" +
                                      "• Uppercase and lowercase letters<br>" +
                                      "• Numbers and special characters</i></html>");
         newInfo.setForeground(Color.GRAY);
@@ -186,9 +186,9 @@ public class ChangePasswordDialog extends JDialog {
             return;
         }
         
-        if (newPassword.length() < 6) {
+        if (newPassword.length() < 8) {
             JOptionPane.showMessageDialog(this,
-                "Password must be at least 6 characters long",
+                "Password must be at least 8 characters long",
                 "Validation Error",
                 JOptionPane.ERROR_MESSAGE);
             newPasswordField.requestFocus();
