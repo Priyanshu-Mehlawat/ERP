@@ -5062,3 +5062,23 @@ java.lang.IllegalStateException: User session not found. Please log in again.
 2025-10-21 12:23:58 [main] DEBUG edu.univ.erp.test.BaseDAOTest - Tearing down test case
 2025-10-21 12:23:58 [main] DEBUG edu.univ.erp.test.BaseDAOTest - Setting up test case
 2025-10-21 12:23:58 [main] DEBUG edu.univ.erp.test.BaseDAOTest - Tearing down test case
+2025-10-21 12:50:53 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - Starting University ERP System...
+2025-10-21 12:50:53 [edu.univ.erp.Main.main()] INFO  edu.univ.erp.Main - FlatLaf Look and Feel applied successfully
+2025-10-21 12:50:53 [AWT-EventQueue-0] INFO  edu.univ.erp.util.ConfigUtil - Configuration loaded successfully
+2025-10-21 12:50:53 [AWT-EventQueue-0] INFO  edu.univ.erp.Main - Login frame displayed
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Starting...
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - AuthDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@3876b219
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - AuthDB-Pool - Start completed.
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - Auth database connection pool initialized
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Starting...
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.pool.HikariPool - ErpDB-Pool - Added connection com.mysql.cj.jdbc.ConnectionImpl@cafe186
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  com.zaxxer.hikari.HikariDataSource - ErpDB-Pool - Start completed.
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  e.univ.erp.data.DatabaseConnection - ERP database connection pool initialized
+2025-10-21 12:51:06 [SwingWorker-pool-1-thread-1] INFO  edu.univ.erp.auth.AuthService - Successful login for user: inst1
+2025-10-21 12:51:06 [AWT-EventQueue-0] INFO  edu.univ.erp.ui.auth.LoginFrame - Login successful for user: inst1 (role: INSTRUCTOR)
+2025-10-21 12:51:54 [SwingWorker-pool-1-thread-6] ERROR edu.univ.erp.auth.PermissionChecker - Instructor user inst1 has no instructor ID in session
+2025-10-21 12:52:03 [SwingWorker-pool-1-thread-7] ERROR edu.univ.erp.auth.PermissionChecker - Instructor user inst1 has no instructor ID in session
+2025-10-21 12:52:09 [SwingWorker-pool-1-thread-9] ERROR edu.univ.erp.auth.PermissionChecker - Instructor user inst1 has no instructor ID in session
+2025-10-21 12:52:13 [SwingWorker-pool-1-thread-1] DEBUG e.u.e.u.i.InstructorSchedulePanel - Retrieved instructor ID: 1 for user ID: 2
+2025-10-21 12:52:14 [AWT-EventQueue-0] INFO  e.u.e.u.i.InstructorSchedulePanel - Loaded 4 sections for instructor schedule
+2025-10-21 12:52:20 [AWT-EventQueue-0] DEBUG e.u.erp.ui.instructor.ReportsPanel - Retrieved instructor ID: 1 for user ID: 2
