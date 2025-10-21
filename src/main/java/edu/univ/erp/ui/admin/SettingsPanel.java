@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -31,10 +32,25 @@ public class SettingsPanel extends JPanel {
     
     private Settings currentSettings;
     
-    public SettingsPanel() {
-        this.settingsDAO = new SettingsDAO();
+    /**
+     * Constructor with dependency injection for SettingsDAO.
+     * Preferred constructor for testing and when DAO instance needs to be controlled.
+     * 
+     * @param settingsDAO the SettingsDAO instance to use for database operations
+     */
+    public SettingsPanel(SettingsDAO settingsDAO) {
+        this.settingsDAO = settingsDAO;
         initComponents();
         loadSettings();
+    }
+    
+    /**
+     * No-arg constructor for backward compatibility.
+     * Creates a new SettingsDAO instance internally.
+     * Delegates to the main constructor.
+     */
+    public SettingsPanel() {
+        this(new SettingsDAO());
     }
     
     private void initComponents() {
@@ -212,8 +228,22 @@ public class SettingsPanel extends JPanel {
                     if (currentSettings != null) {
                         displaySettings(currentSettings);
                     } else {
-                        logger.warn("No settings found in database, using defaults");
+                        logger.warn("No settings found in database, creating and persisting defaults");
                         currentSettings = createDefaultSettings();
+                        
+                        // Persist default settings to database
+                        try {
+                            settingsDAO.updateSettings(currentSettings);
+                            logger.info("Successfully persisted default settings to database");
+                        } catch (Exception persistEx) {
+                            logger.error("Failed to persist default settings to database", persistEx);
+                            JOptionPane.showMessageDialog(SettingsPanel.this,
+                                "Warning: Default settings could not be saved to database.\n" +
+                                "They will be used for this session only.\nError: " + persistEx.getMessage(),
+                                "Persistence Warning",
+                                JOptionPane.WARNING_MESSAGE);
+                        }
+                        
                         displaySettings(currentSettings);
                     }
                 } catch (Exception e) {
@@ -253,11 +283,32 @@ public class SettingsPanel extends JPanel {
     }
     
     private void saveSettings() {
-        // Validate and collect settings
-        Settings settings = new Settings();
+        // Use existing settings object to preserve ID/key, or create new if none exists
+        Settings settings;
+        if (currentSettings != null) {
+            // Update existing settings in-place to preserve ID/key fields
+            settings = currentSettings;
+        } else {
+            // Create new settings only if no current settings exist
+            settings = new Settings();
+            logger.warn("No current settings object exists, creating new settings record");
+        }
+        
+        // Validate and update settings fields from form
         settings.setMaintenanceMode(maintenanceModeCheckbox.isSelected());
         settings.setRegistrationEnabled(registrationEnabledCheckbox.isSelected());
-        settings.setCurrentSemester(currentSemesterField.getText().trim());
+        
+        // Validate semester field - must not be empty
+        String semester = currentSemesterField.getText().trim();
+        if (semester.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Current Semester cannot be empty.\nPlease enter a semester (e.g., Fall, Spring, Summer).",
+                "Validation Error",
+                JOptionPane.ERROR_MESSAGE);
+            currentSemesterField.requestFocusInWindow();
+            return;
+        }
+        settings.setCurrentSemester(semester);
         settings.setCurrentYear((Integer) currentYearSpinner.getValue());
         
         // Parse deadlines
@@ -279,6 +330,18 @@ public class SettingsPanel extends JPanel {
                 "Validation Error",
                 JOptionPane.ERROR_MESSAGE);
             return;
+        }
+        
+        // Validate deadline order: withdrawal must be after add/drop
+        if (settings.getAddDropDeadline() != null && settings.getWithdrawalDeadline() != null) {
+            if (!settings.getWithdrawalDeadline().isAfter(settings.getAddDropDeadline())) {
+                JOptionPane.showMessageDialog(this,
+                    "Withdrawal deadline must be after add/drop deadline.\n" +
+                    "Please adjust the deadlines so withdrawal comes later.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         }
         
         String announcement = announcementArea.getText().trim();
@@ -327,6 +390,15 @@ public class SettingsPanel extends JPanel {
         
         if (confirm == JOptionPane.YES_OPTION) {
             Settings defaults = createDefaultSettings();
+            
+            // Preserve any ID or key fields from current settings if they exist
+            // This ensures the reset updates existing records rather than creating new ones
+            if (currentSettings != null) {
+                if (currentSettings.getKey() != null) {
+                    defaults.setKey(currentSettings.getKey());
+                }
+            }
+            
             displaySettings(defaults);
             
             // Save defaults
@@ -364,7 +436,7 @@ public class SettingsPanel extends JPanel {
         settings.setMaintenanceMode(false);
         settings.setRegistrationEnabled(true);
         settings.setCurrentSemester("Fall");
-        settings.setCurrentYear(2025);
+        settings.setCurrentYear(Year.now().getValue());
         settings.setAddDropDeadline(null);
         settings.setWithdrawalDeadline(null);
         settings.setAnnouncement(null);

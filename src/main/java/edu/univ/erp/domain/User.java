@@ -6,6 +6,11 @@ import java.time.LocalDateTime;
  * User entity representing users in the Auth DB.
  */
 public class User {
+    // Status constants
+    public static final String STATUS_ACTIVE = "ACTIVE";
+    public static final String STATUS_INACTIVE = "INACTIVE";
+    public static final String STATUS_LOCKED = "LOCKED";
+    
     private Long userId;
     private String username;
     private String role; // STUDENT, INSTRUCTOR, ADMIN
@@ -21,7 +26,7 @@ public class User {
         this.userId = userId;
         this.username = username;
         this.role = role;
-        this.status = "ACTIVE";
+        this.status = STATUS_ACTIVE;
         this.failedLoginAttempts = 0;
     }
 

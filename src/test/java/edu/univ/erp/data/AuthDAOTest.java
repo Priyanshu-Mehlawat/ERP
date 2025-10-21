@@ -190,14 +190,15 @@ class AuthDAOTest extends BaseDAOTest {
     @Test
     @Order(10)
     @DisplayName("Update user - non-existent user")
-    void testUpdateUser_NonExistentUser() throws SQLException {
+    void testUpdateUser_NonExistentUser() {
         Long nonExistentUserId = 999999L;
         
-    // Attempt update; should not throw, but also not create a user
-    authDAO.updateUser(nonExistentUserId, "new_username", "STUDENT");
-    assertNull(authDAO.findByUsername("new_username"), "Non-existent user should not be updated");
+        // Should throw SQLException because no rows affected
+        assertThrows(SQLException.class, () -> {
+            authDAO.updateUser(nonExistentUserId, "new_username", "STUDENT");
+        }, "Should throw SQLException for non-existent user");
         
-        logger.info("Correctly handled non-existent user update");
+        logger.info("Correctly handled non-existent user update with exception");
     }
 
     @Test
@@ -226,13 +227,15 @@ class AuthDAOTest extends BaseDAOTest {
     @Test
     @Order(12)
     @DisplayName("Reset password - non-existent user")
-    void testResetPassword_NonExistentUser() throws SQLException {
+    void testResetPassword_NonExistentUser() {
         Long nonExistentUserId = 999999L;
         
-    // Should not throw, but should have no effect
-    authDAO.resetPassword(nonExistentUserId, testHashedPassword);
+        // Should throw SQLException because no rows affected
+        assertThrows(SQLException.class, () -> {
+            authDAO.resetPassword(nonExistentUserId, testHashedPassword);
+        }, "Should throw SQLException for non-existent user");
         
-        logger.info("Correctly handled non-existent user password reset");
+        logger.info("Correctly handled non-existent user password reset with exception");
     }
 
     @Test
@@ -261,12 +264,15 @@ class AuthDAOTest extends BaseDAOTest {
     @Test
     @Order(14)
     @DisplayName("Unlock account - non-existent user")
-    void testUnlockAccount_NonExistentUser() throws SQLException {
-    Long nonExistentUserId = 999999L;
-    // Should not throw
-    authDAO.unlockAccount(nonExistentUserId);
+    void testUnlockAccount_NonExistentUser() {
+        Long nonExistentUserId = 999999L;
         
-        logger.info("Correctly handled non-existent user unlock");
+        // Should throw SQLException because no rows affected
+        assertThrows(SQLException.class, () -> {
+            authDAO.unlockAccount(nonExistentUserId);
+        }, "Should throw SQLException for non-existent user");
+        
+        logger.info("Correctly handled non-existent user unlock with exception");
     }
 
     @Test

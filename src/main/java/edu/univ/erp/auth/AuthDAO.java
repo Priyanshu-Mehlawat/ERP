@@ -82,7 +82,12 @@ public class AuthDAO {
             
             stmt.setString(1, status);
             stmt.setLong(2, userId);
-            stmt.executeUpdate();
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                logger.error("No user exists with userId={}. Status update failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Status update failed.");
+            }
         } catch (SQLException e) {
             logger.error("Error updating status for user_id: {}", userId, e);
             throw e;
@@ -94,7 +99,7 @@ public class AuthDAO {
      */
     public Long createUser(String username, String role, String passwordHash) throws SQLException {
         String sql = "INSERT INTO users_auth (username, role, password_hash, status, failed_login_attempts) " +
-                     "VALUES (?, ?, ?, 'ACTIVE', 0)";
+                     "VALUES (?, ?, ?, ?, 0)";
 
         try (Connection conn = DatabaseConnection.getAuthConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -102,6 +107,7 @@ public class AuthDAO {
             stmt.setString(1, username);
             stmt.setString(2, role);
             stmt.setString(3, passwordHash);
+            stmt.setString(4, User.STATUS_ACTIVE);
             stmt.executeUpdate();
 
             ResultSet rs = stmt.getGeneratedKeys();
@@ -141,6 +147,29 @@ public class AuthDAO {
      * @throws SQLException if database access error occurs
      */
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        // Check metadata once to see if password_hash column exists
+        ResultSetMetaData metaData = rs.getMetaData();
+        boolean hasPasswordHashColumn = false;
+        int columnCount = metaData.getColumnCount();
+        
+        for (int i = 1; i <= columnCount; i++) {
+            if ("password_hash".equalsIgnoreCase(metaData.getColumnLabel(i))) {
+                hasPasswordHashColumn = true;
+                break;
+            }
+        }
+        
+        return mapResultSetToUser(rs, hasPasswordHashColumn);
+    }
+    
+    /**
+     * Helper method to map ResultSet data to User object with precomputed metadata flag.
+     * @param rs the ResultSet positioned at the current row
+     * @param hasPasswordHashColumn precomputed flag indicating if password_hash column exists
+     * @return User object with mapped data
+     * @throws SQLException if database access error occurs
+     */
+    private User mapResultSetToUser(ResultSet rs, boolean hasPasswordHashColumn) throws SQLException {
         User user = new User();
         user.setUserId(rs.getLong("user_id"));
         user.setUsername(rs.getString("username"));
@@ -155,18 +184,6 @@ public class AuthDAO {
         }
         
         // Include password_hash if present in ResultSet (some queries exclude it for security)
-        // Check ResultSetMetaData to determine if password_hash column exists
-        ResultSetMetaData metaData = rs.getMetaData();
-        boolean hasPasswordHashColumn = false;
-        int columnCount = metaData.getColumnCount();
-        
-        for (int i = 1; i <= columnCount; i++) {
-            if ("password_hash".equalsIgnoreCase(metaData.getColumnLabel(i))) {
-                hasPasswordHashColumn = true;
-                break;
-            }
-        }
-        
         if (hasPasswordHashColumn) {
             String passwordHash = rs.getString("password_hash");
             user.setPasswordHash(passwordHash);
@@ -206,8 +223,26 @@ public class AuthDAO {
             stmt.setInt(2, offset);
             
             try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    users.add(mapResultSetToUser(rs));
+                // Check metadata once before the loop to avoid repeated checks
+                boolean hasPasswordHashColumn = false;
+                if (rs.next()) {
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    
+                    for (int i = 1; i <= columnCount; i++) {
+                        if ("password_hash".equalsIgnoreCase(metaData.getColumnLabel(i))) {
+                            hasPasswordHashColumn = true;
+                            break;
+                        }
+                    }
+                    
+                    // Process first row
+                    users.add(mapResultSetToUser(rs, hasPasswordHashColumn));
+                    
+                    // Process remaining rows
+                    while (rs.next()) {
+                        users.add(mapResultSetToUser(rs, hasPasswordHashColumn));
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -298,7 +333,12 @@ public class AuthDAO {
             stmt.setString(1, username);
             stmt.setString(2, role);
             stmt.setLong(3, userId);
-            stmt.executeUpdate();
+            
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                logger.error("No user exists with userId={}. Update failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Update failed.");
+            }
         } catch (SQLException e) {
             logger.error("Error updating user with ID: {}", userId, e);
             throw e;
@@ -316,7 +356,13 @@ public class AuthDAO {
             
             stmt.setString(1, hashedPassword);
             stmt.setLong(2, userId);
-            stmt.executeUpdate();
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                logger.error("No user exists with userId={}. Password reset failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Password reset failed.");
+            }
+            
             logger.info("Password reset for user ID: {}", userId);
         } catch (SQLException e) {
             logger.error("Error resetting password for user ID: {}", userId, e);
@@ -328,13 +374,20 @@ public class AuthDAO {
      * Unlock a locked user account.
      */
     public void unlockAccount(Long userId) throws SQLException {
-        String sql = "UPDATE users_auth SET status = 'ACTIVE', failed_login_attempts = 0 WHERE user_id = ?";
+        String sql = "UPDATE users_auth SET status = ?, failed_login_attempts = 0 WHERE user_id = ?";
         
         try (Connection conn = DatabaseConnection.getAuthConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setLong(1, userId);
-            stmt.executeUpdate();
+            stmt.setString(1, User.STATUS_ACTIVE);
+            stmt.setLong(2, userId);
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                logger.error("No user exists with userId={}. Account unlock failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Account unlock failed.");
+            }
+            
             logger.info("Account unlocked for user ID: {}", userId);
         } catch (SQLException e) {
             logger.error("Error unlocking account for user ID: {}", userId, e);

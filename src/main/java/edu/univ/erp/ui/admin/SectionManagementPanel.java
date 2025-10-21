@@ -16,10 +16,45 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Section Management Panel for Admin
- * Allows CRUD operations on course sections and instructor assignments
+ * Allows CRUD operations on course sections and instructor assignments.
+ * 
+ * <p><b>Resource Management:</b></p>
+ * <p>This panel supports dependency injection for better lifecycle management and testability.
+ * When using the parameterized constructor, callers can inject managed DAO instances.
+ * Call {@link #dispose()} when the panel is no longer needed to release resources.</p>
+ * 
+ * <p><b>Usage Example (Recommended):</b></p>
+ * <pre>{@code
+ * // Create DAOs (could be managed by a DI container or factory)
+ * SectionDAO sectionDAO = new SectionDAO();
+ * CourseDAO courseDAO = new CourseDAO();
+ * InstructorDAO instructorDAO = new InstructorDAO();
+ * SectionService sectionService = new SectionService();
+ * 
+ * // Create panel with injected dependencies
+ * SectionManagementPanel panel = new SectionManagementPanel(
+ *     sectionDAO, courseDAO, instructorDAO, sectionService);
+ * 
+ * // Add to dialog
+ * JDialog dialog = new JDialog(parent, "Section Management", true);
+ * dialog.add(panel, BorderLayout.CENTER);
+ * 
+ * // Add cleanup on close
+ * dialog.addWindowListener(new WindowAdapter() {
+ *     public void windowClosed(WindowEvent e) {
+ *         panel.dispose();
+ *     }
+ * });
+ * 
+ * dialog.setVisible(true);
+ * }</pre>
+ * 
+ * @see SectionDAO
+ * @see SectionService
  */
 public class SectionManagementPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(SectionManagementPanel.class);
@@ -34,13 +69,45 @@ public class SectionManagementPanel extends JPanel {
     private JTextField searchField;
     private JComboBox<String> semesterFilterCombo;
     
-    public SectionManagementPanel() {
-        this.sectionDAO = new SectionDAO();
-        this.courseDAO = new CourseDAO();
-        this.instructorDAO = new InstructorDAO();
-        this.sectionService = new SectionService();
+    /**
+     * Constructor with dependency injection for better resource management and testability.
+     * 
+     * @param sectionDAO Section data access object
+     * @param courseDAO Course data access object
+     * @param instructorDAO Instructor data access object
+     * @param sectionService Section business logic service
+     */
+    public SectionManagementPanel(SectionDAO sectionDAO, CourseDAO courseDAO, 
+                                   InstructorDAO instructorDAO, SectionService sectionService) {
+        this.sectionDAO = sectionDAO;
+        this.courseDAO = courseDAO;
+        this.instructorDAO = instructorDAO;
+        this.sectionService = sectionService;
         initComponents();
         loadSections();
+    }
+    
+    /**
+     * Default constructor for backward compatibility.
+     * Creates new DAO instances - use parameterized constructor for better resource management.
+     * 
+     * @deprecated Use {@link #SectionManagementPanel(SectionDAO, CourseDAO, InstructorDAO, SectionService)} instead
+     */
+    @Deprecated
+    public SectionManagementPanel() {
+        this(new SectionDAO(), new CourseDAO(), new InstructorDAO(), new SectionService());
+    }
+    
+    /**
+     * Cleanup method to release any resources.
+     * Call this method when the panel is no longer needed.
+     * Note: Current DAOs use try-with-resources for connections, so no persistent resources to clean up.
+     * This method is provided for future extensibility and lifecycle management.
+     */
+    public void dispose() {
+        // Future: If DAOs hold persistent resources, clean them up here
+        // For now, DAOs use try-with-resources for each operation, so no cleanup needed
+        logger.debug("SectionManagementPanel disposed");
     }
     
     private void initComponents() {
@@ -163,17 +230,68 @@ public class SectionManagementPanel extends JPanel {
     }
     
     private void loadSections() {
-        SwingWorker<List<Section>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<SectionViewData>, Void> worker = new SwingWorker<>() {
             @Override
-            protected List<Section> doInBackground() throws Exception {
-                return sectionService.listAllSections();
+            protected List<SectionViewData> doInBackground() throws Exception {
+                // Fetch sections
+                List<Section> sections = sectionService.listAllSections();
+                
+                // Preload all courses and instructors to avoid N+1 queries
+                Map<Long, Course> courseMap = new java.util.HashMap<>();
+                Map<Long, Instructor> instructorMap = new java.util.HashMap<>();
+                
+                try {
+                    List<Course> courses = courseDAO.findAll();
+                    for (Course course : courses) {
+                        courseMap.put(course.getCourseId(), course);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error preloading courses", e);
+                }
+                
+                try {
+                    List<Instructor> instructors = instructorDAO.findAll();
+                    for (Instructor instructor : instructors) {
+                        instructorMap.put(instructor.getInstructorId(), instructor);
+                    }
+                } catch (SQLException e) {
+                    logger.error("Error preloading instructors", e);
+                }
+                
+                // Build view data objects with all resolved references
+                List<SectionViewData> viewDataList = new java.util.ArrayList<>();
+                for (Section section : sections) {
+                    Course course = courseMap.get(section.getCourseId());
+                    Instructor instructor = section.getInstructorId() != null ? 
+                        instructorMap.get(section.getInstructorId()) : null;
+                    
+                    String courseCode = course != null ? course.getCode() : "N/A";
+                    String courseTitle = course != null ? course.getTitle() : "N/A";
+                    String instructorName = instructor != null ? instructor.getFullName() : "Not Assigned";
+                    String schedule = formatSchedule(section);
+                    
+                    viewDataList.add(new SectionViewData(
+                        section.getSectionId(),
+                        courseCode,
+                        courseTitle,
+                        section.getSectionNumber(),
+                        section.getSemester() + " " + section.getYear(),
+                        instructorName,
+                        schedule,
+                        section.getRoom(),
+                        section.getCapacity(),
+                        section.getEnrolled()
+                    ));
+                }
+                
+                return viewDataList;
             }
             
             @Override
             protected void done() {
                 try {
-                    List<Section> sections = get();
-                    displaySections(sections);
+                    List<SectionViewData> viewData = get();
+                    displaySections(viewData);
                 } catch (Exception e) {
                     logger.error("Error loading sections", e);
                     JOptionPane.showMessageDialog(SectionManagementPanel.this,
@@ -186,34 +304,53 @@ public class SectionManagementPanel extends JPanel {
         worker.execute();
     }
     
-    private void displaySections(List<Section> sections) {
+    private void displaySections(List<SectionViewData> viewDataList) {
         tableModel.setRowCount(0);
-        for (Section section : sections) {
-            try {
-                Course course = courseDAO.findById(section.getCourseId());
-                Instructor instructor = section.getInstructorId() != null ? 
-                    instructorDAO.findById(section.getInstructorId()) : null;
-                
-                String courseCode = course != null ? course.getCode() : "N/A";
-                String courseTitle = course != null ? course.getTitle() : "N/A";
-                String instructorName = instructor != null ? instructor.getFullName() : "Not Assigned";
-                String schedule = formatSchedule(section);
-                
-                tableModel.addRow(new Object[]{
-                    section.getSectionId(),
-                    courseCode,
-                    courseTitle,
-                    section.getSectionNumber(),
-                    section.getSemester() + " " + section.getYear(),
-                    instructorName,
-                    schedule,
-                    section.getRoom(),
-                    section.getCapacity(),
-                    section.getEnrolled()
-                });
-            } catch (SQLException e) {
-                logger.error("Error loading course/instructor data for section", e);
-            }
+        for (SectionViewData data : viewDataList) {
+            tableModel.addRow(new Object[]{
+                data.sectionId,
+                data.courseCode,
+                data.courseTitle,
+                data.sectionNumber,
+                data.semester,
+                data.instructorName,
+                data.schedule,
+                data.room,
+                data.capacity,
+                data.enrolled
+            });
+        }
+    }
+    
+    /**
+     * Internal DTO to hold pre-resolved section view data.
+     * All database lookups are performed in background thread before creating this object.
+     */
+    private static class SectionViewData {
+        final Long sectionId;
+        final String courseCode;
+        final String courseTitle;
+        final String sectionNumber;
+        final String semester;
+        final String instructorName;
+        final String schedule;
+        final String room;
+        final int capacity;
+        final int enrolled;
+        
+        SectionViewData(Long sectionId, String courseCode, String courseTitle, String sectionNumber,
+                       String semester, String instructorName, String schedule, String room,
+                       int capacity, int enrolled) {
+            this.sectionId = sectionId;
+            this.courseCode = courseCode;
+            this.courseTitle = courseTitle;
+            this.sectionNumber = sectionNumber;
+            this.semester = semester;
+            this.instructorName = instructorName;
+            this.schedule = schedule;
+            this.room = room;
+            this.capacity = capacity;
+            this.enrolled = enrolled;
         }
     }
     
@@ -235,25 +372,88 @@ public class SectionManagementPanel extends JPanel {
         String searchText = searchField.getText().trim().toLowerCase();
         String semesterFilter = (String) semesterFilterCombo.getSelectedItem();
         
-        SwingWorker<List<Section>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<SectionViewData>, Void> worker = new SwingWorker<>() {
             @Override
-            protected List<Section> doInBackground() throws Exception {
+            protected List<SectionViewData> doInBackground() throws Exception {
+                // Preload all courses and instructors into maps
+                Map<Long, Course> courseMap = new java.util.HashMap<>();
+                List<Course> courses = courseDAO.findAll();
+                for (Course course : courses) {
+                    courseMap.put(course.getCourseId(), course);
+                }
+                
+                Map<Long, Instructor> instructorMap = new java.util.HashMap<>();
+                try {
+                    List<Instructor> instructors = instructorDAO.findAll();
+                    for (Instructor instructor : instructors) {
+                        instructorMap.put(instructor.getInstructorId(), instructor);
+                    }
+                } catch (SQLException e) {
+                    logger.error("Error preloading instructors for filtering", e);
+                }
+                
                 List<Section> allSections = sectionService.listAllSections();
-                return allSections.stream()
-                    .filter(s -> {
-                        boolean matchesSearch = searchText.isEmpty();
-                        if (!matchesSearch) {
-                            Course course = courseDAO.findById(s.getCourseId());
-                            matchesSearch = (course != null && 
-                                (course.getCode().toLowerCase().contains(searchText) ||
-                                 course.getTitle().toLowerCase().contains(searchText))) ||
-                                s.getRoom().toLowerCase().contains(searchText);
-                        }
-                        boolean matchesSemester = "All".equals(semesterFilter) || 
-                            s.getSemester().equals(semesterFilter);
-                        return matchesSearch && matchesSemester;
-                    })
-                    .toList();
+                
+                // Extract semester token from filter (e.g., "Fall 2024" -> "Fall")
+                String semesterToken = null;
+                if (semesterFilter != null && !"All".equals(semesterFilter)) {
+                    String[] parts = semesterFilter.split("\\s+");
+                    if (parts.length > 0) {
+                        semesterToken = parts[0];
+                    }
+                }
+                final String finalSemesterToken = semesterToken;
+                
+                // Filter sections and build view data
+                List<SectionViewData> viewDataList = new java.util.ArrayList<>();
+                for (Section s : allSections) {
+                    // Search filter
+                    boolean matchesSearch = searchText.isEmpty();
+                    if (!matchesSearch) {
+                        Course course = courseMap.get(s.getCourseId());
+                        String courseCode = course != null && course.getCode() != null ? 
+                            course.getCode().toLowerCase() : "";
+                        String courseTitle = course != null && course.getTitle() != null ? 
+                            course.getTitle().toLowerCase() : "";
+                        String room = s.getRoom() != null ? s.getRoom().toLowerCase() : "";
+                        
+                        matchesSearch = courseCode.contains(searchText) ||
+                                      courseTitle.contains(searchText) ||
+                                      room.contains(searchText);
+                    }
+                    
+                    // Semester filter
+                    boolean matchesSemester = "All".equals(semesterFilter) || 
+                        (finalSemesterToken != null && s.getSemester() != null && 
+                         s.getSemester().equals(finalSemesterToken));
+                    
+                    if (matchesSearch && matchesSemester) {
+                        // Build view data for matched sections
+                        Course course = courseMap.get(s.getCourseId());
+                        Instructor instructor = s.getInstructorId() != null ? 
+                            instructorMap.get(s.getInstructorId()) : null;
+                        
+                        String courseCode = course != null ? course.getCode() : "N/A";
+                        String courseTitle = course != null ? course.getTitle() : "N/A";
+                        String instructorName = instructor != null ? instructor.getFullName() : "Not Assigned";
+                        String schedule = formatSchedule(s);
+                        
+                        viewDataList.add(new SectionViewData(
+                            s.getSectionId(),
+                            courseCode,
+                            courseTitle,
+                            s.getSectionNumber(),
+                            s.getSemester() + " " + s.getYear(),
+                            instructorName,
+                            schedule,
+                            s.getRoom(),
+                            s.getCapacity(),
+                            s.getEnrolled()
+                        ));
+                    }
+                }
+                
+                return viewDataList;
             }
             
             @Override
@@ -430,20 +630,47 @@ public class SectionManagementPanel extends JPanel {
         
         Long sectionId = (Long) tableModel.getValueAt(selectedRow, 0);
         
-        // Load section details
-        Section section;
-        try {
-            section = sectionDAO.findById(sectionId);
-            if (section == null) {
-                JOptionPane.showMessageDialog(this, "Section not found");
-                return;
-            }
-        } catch (SQLException e) {
-            logger.error("Error loading section", e);
-            JOptionPane.showMessageDialog(this, "Error loading section: " + e.getMessage());
-            return;
-        }
+        // Disable table during loading
+        sectionTable.setEnabled(false);
         
+        // Load section details in background thread
+        SwingWorker<Section, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Section doInBackground() throws Exception {
+                return sectionDAO.findById(sectionId);
+            }
+            
+            @Override
+            protected void done() {
+                // Re-enable table
+                sectionTable.setEnabled(true);
+                
+                try {
+                    Section section = get();
+                    if (section == null) {
+                        JOptionPane.showMessageDialog(SectionManagementPanel.this, 
+                            "Section not found", 
+                            "Error", 
+                            JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    // Show dialog on EDT with loaded section
+                    showEditDialogWithSection(section);
+                    
+                } catch (Exception e) {
+                    logger.error("Error loading section", e);
+                    JOptionPane.showMessageDialog(SectionManagementPanel.this,
+                        "Error loading section: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
+    }
+    
+    private void showEditDialogWithSection(Section section) {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit Section", true);
         dialog.setLayout(new MigLayout("fillx", "[right]rel[grow,fill]", ""));
         
@@ -505,6 +732,24 @@ public class SectionManagementPanel extends JPanel {
         JButton cancelBtn = new JButton("Cancel");
         
         saveBtn.addActionListener(e -> {
+            // Validate capacity before saving
+            int newCapacity = (Integer) capacitySpinner.getValue();
+            int currentEnrolled = section.getEnrolled();
+            
+            if (newCapacity < currentEnrolled) {
+                JOptionPane.showMessageDialog(dialog,
+                    String.format("Cannot reduce capacity to %d.\n" +
+                                  "Section currently has %d enrolled student%s.\n" +
+                                  "Capacity must be at least %d.",
+                                  newCapacity, 
+                                  currentEnrolled,
+                                  currentEnrolled == 1 ? "" : "s",
+                                  currentEnrolled),
+                    "Invalid Capacity",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
             section.setSectionNumber(sectionNumberField.getText().trim());
             section.setSemester((String) semesterCombo.getSelectedItem());
             section.setYear((Integer) yearSpinner.getValue());
@@ -516,7 +761,7 @@ public class SectionManagementPanel extends JPanel {
                 (Integer) endHourSpinner.getValue(), 
                 (Integer) endMinuteSpinner.getValue()));
             section.setRoom(roomField.getText().trim());
-            section.setCapacity((Integer) capacitySpinner.getValue());
+            section.setCapacity(newCapacity);
             
             updateSection(section);
             dialog.dispose();
@@ -742,8 +987,15 @@ public class SectionManagementPanel extends JPanel {
                 details.append("Enrolled: ").append(section.getEnrolled()).append("\n");
                 details.append("Available Seats: ").append(section.getCapacity() - section.getEnrolled()).append("\n");
                 
-                double fillRate = (section.getEnrolled() * 100.0) / section.getCapacity();
-                details.append("Fill Rate: ").append(String.format("%.1f%%", fillRate)).append("\n");
+                // Guard against division by zero
+                if (section.getCapacity() <= 0) {
+                    logger.warn("Invalid section capacity: {} for section ID: {}", 
+                               section.getCapacity(), section.getSectionId());
+                    details.append("Fill Rate: N/A (invalid capacity)").append("\n");
+                } else {
+                    double fillRate = (section.getEnrolled() * 100.0) / section.getCapacity();
+                    details.append("Fill Rate: ").append(String.format("%.1f%%", fillRate)).append("\n");
+                }
                 
                 return details.toString();
             }

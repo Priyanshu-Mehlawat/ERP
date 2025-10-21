@@ -250,6 +250,14 @@ public class AdminDashboard extends JFrame {
         SectionManagementPanel sectionPanel = new SectionManagementPanel();
         dialog.add(sectionPanel, BorderLayout.CENTER);
         
+        // Add window listener to cleanup resources when dialog is closed
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                sectionPanel.dispose();
+            }
+        });
+        
         dialog.setSize(1000, 600);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);

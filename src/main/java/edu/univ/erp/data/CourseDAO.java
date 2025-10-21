@@ -98,6 +98,9 @@ public class CourseDAO {
                     return keys.getLong(1);
                 }
             }
+        } catch (SQLException e) {
+            logger.error("Error saving course with code: {}", course.getCode(), e);
+            throw e;
         }
         return null;
     }
@@ -113,6 +116,9 @@ public class CourseDAO {
             ps.setLong(5, course.getCourseId());
             
             ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error updating course with id: {}", course.getCourseId(), e);
+            throw e;
         }
     }
     
@@ -122,6 +128,9 @@ public class CourseDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, courseId);
             ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error deleting course with id: {}", courseId, e);
+            throw e;
         }
     }
 }
