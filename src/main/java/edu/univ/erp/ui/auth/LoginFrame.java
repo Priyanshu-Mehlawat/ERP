@@ -3,7 +3,10 @@ package edu.univ.erp.ui.auth;
 import com.formdev.flatlaf.FlatClientProperties;
 import edu.univ.erp.auth.AuthService;
 import edu.univ.erp.auth.SessionManager;
+import edu.univ.erp.auth.UserRole;
 import edu.univ.erp.data.DatabaseConnection;
+import edu.univ.erp.data.SettingsDAO;
+import edu.univ.erp.domain.Settings;
 import edu.univ.erp.domain.User;
 import edu.univ.erp.ui.admin.AdminDashboard;
 import edu.univ.erp.ui.instructor.InstructorDashboard;
@@ -84,20 +87,8 @@ public class LoginFrame extends JFrame {
         statusLabel.setForeground(Color.RED);
         mainPanel.add(statusLabel, "align center, wrap");
 
-        // Info panel
-        JPanel infoPanel = new JPanel(new MigLayout("fillx, insets 10", "[grow]", "[]5[]5[]5[]"));
-        infoPanel.setBorder(BorderFactory.createTitledBorder("Default Credentials"));
-        infoPanel.add(new JLabel("Admin: admin1 / password123"), "wrap");
-        infoPanel.add(new JLabel("Instructor: inst1 / password123"), "wrap");
-        infoPanel.add(new JLabel("Student 1: stu1 / password123"), "wrap");
-        infoPanel.add(new JLabel("Student 2: stu2 / password123"), "wrap");
-
-        // Add panels to frame
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(mainPanel, BorderLayout.CENTER);
-        centerPanel.add(infoPanel, BorderLayout.SOUTH);
-
-        add(centerPanel, BorderLayout.CENTER);
+        // Add panels to frame - removed info panel with credentials
+        add(mainPanel, BorderLayout.CENTER);
 
         // Enter key to login
         passwordField.addActionListener(e -> handleLogin());
@@ -152,6 +143,15 @@ public class LoginFrame extends JFrame {
                         SessionManager.getInstance().setCurrentUser(user);
                         logger.info("Login successful for user: {} (role: {})", user.getUsername(), user.getRole());
                         
+                        // Check maintenance mode before opening dashboard
+                        if (!checkMaintenanceMode(user)) {
+                            // Maintenance mode blocked the login
+                            loginButton.setEnabled(true);
+                            loginButton.setText("Login");
+                            SessionManager.getInstance().logout();
+                            return;
+                        }
+                        
                         showSuccess("Login successful! Opening dashboard...");
                         
                         // Open appropriate dashboard after short delay
@@ -175,6 +175,45 @@ public class LoginFrame extends JFrame {
         worker.execute();
     }
 
+    /**
+     * Check if maintenance mode is enabled and block non-admin users.
+     * 
+     * @param user The authenticated user
+     * @return true if user is allowed to proceed, false if blocked
+     */
+    private boolean checkMaintenanceMode(User user) {
+        // Admins always bypass maintenance mode
+        if (UserRole.ADMIN.equals(user.getRole())) {
+            return true;
+        }
+        
+        try {
+            SettingsDAO settingsDAO = new SettingsDAO();
+            Settings settings = settingsDAO.getSettings();
+            
+            if (settings.isMaintenanceMode()) {
+                logger.warn("Maintenance mode blocked login for user: {} (role: {})", 
+                        user.getUsername(), user.getRole());
+                
+                JOptionPane.showMessageDialog(this,
+                        "<html><h3>System Under Maintenance</h3>" +
+                        "<p>The system is currently undergoing maintenance.</p>" +
+                        "<p>Please try again later.</p>" +
+                        "<p><small>If you need immediate access, please contact your system administrator.</small></p></html>",
+                        "Maintenance Mode",
+                        JOptionPane.WARNING_MESSAGE);
+                
+                return false;
+            }
+            
+            return true;
+        } catch (Exception e) {
+            logger.error("Error checking maintenance mode", e);
+            // On error, allow login (fail open to avoid locking everyone out)
+            return true;
+        }
+    }
+
     private void openDashboard(User user) {
         dispose();
         
@@ -182,17 +221,27 @@ public class LoginFrame extends JFrame {
             try {
                 JFrame dashboard;
                 switch (user.getRole()) {
-                    case "ADMIN":
+                    case UserRole.ADMIN:
                         dashboard = new AdminDashboard();
                         break;
-                    case "INSTRUCTOR":
-                        dashboard = new InstructorDashboard();
+                    case UserRole.INSTRUCTOR:
+                        dashboard = InstructorDashboard.create();
+                        if (dashboard == null) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Failed to initialize instructor dashboard",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                         break;
-                    case "STUDENT":
+                    case UserRole.STUDENT:
                         dashboard = new StudentDashboard();
                         break;
                     default:
-                        showError("Unknown role: " + user.getRole());
+                        JOptionPane.showMessageDialog(null,
+                                "Unknown role: " + user.getRole(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
                         return;
                 }
                 dashboard.setVisible(true);

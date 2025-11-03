@@ -24,21 +24,10 @@ public class AuthDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getLong("user_id"));
-                user.setUsername(rs.getString("username"));
-                user.setRole(rs.getString("role"));
-                user.setPasswordHash(rs.getString("password_hash"));
-                user.setStatus(rs.getString("status"));
-                user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
-                Timestamp lastLogin = rs.getTimestamp("last_login");
-                if (lastLogin != null) {
-                    user.setLastLogin(lastLogin.toLocalDateTime());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
                 }
-                return user;
             }
         } catch (SQLException e) {
             logger.error("Error finding user by username: {}", username, e);
@@ -93,7 +82,12 @@ public class AuthDAO {
             
             stmt.setString(1, status);
             stmt.setLong(2, userId);
-            stmt.executeUpdate();
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                logger.error("No user exists with userId={}. Status update failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Status update failed.");
+            }
         } catch (SQLException e) {
             logger.error("Error updating status for user_id: {}", userId, e);
             throw e;
@@ -105,7 +99,7 @@ public class AuthDAO {
      */
     public Long createUser(String username, String role, String passwordHash) throws SQLException {
         String sql = "INSERT INTO users_auth (username, role, password_hash, status, failed_login_attempts) " +
-                     "VALUES (?, ?, ?, 'ACTIVE', 0)";
+                     "VALUES (?, ?, ?, ?, 0)";
 
         try (Connection conn = DatabaseConnection.getAuthConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -113,6 +107,7 @@ public class AuthDAO {
             stmt.setString(1, username);
             stmt.setString(2, role);
             stmt.setString(3, passwordHash);
+            stmt.setString(4, User.STATUS_ACTIVE);
             stmt.executeUpdate();
 
             ResultSet rs = stmt.getGeneratedKeys();
@@ -140,6 +135,262 @@ public class AuthDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Error changing password for user_id: {}", userId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Helper method to map ResultSet data to User object.
+     * Maps all available fields from the ResultSet including password_hash if present.
+     * @param rs ResultSet containing user data
+     * @return User object with mapped data
+     * @throws SQLException if database access error occurs
+     */
+    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        // Check metadata once to see if password_hash column exists
+        ResultSetMetaData metaData = rs.getMetaData();
+        boolean hasPasswordHashColumn = false;
+        int columnCount = metaData.getColumnCount();
+        
+        for (int i = 1; i <= columnCount; i++) {
+            if ("password_hash".equalsIgnoreCase(metaData.getColumnLabel(i))) {
+                hasPasswordHashColumn = true;
+                break;
+            }
+        }
+        
+        return mapResultSetToUser(rs, hasPasswordHashColumn);
+    }
+    
+    /**
+     * Helper method to map ResultSet data to User object with precomputed metadata flag.
+     * @param rs the ResultSet positioned at the current row
+     * @param hasPasswordHashColumn precomputed flag indicating if password_hash column exists
+     * @return User object with mapped data
+     * @throws SQLException if database access error occurs
+     */
+    private User mapResultSetToUser(ResultSet rs, boolean hasPasswordHashColumn) throws SQLException {
+        User user = new User();
+        user.setUserId(rs.getLong("user_id"));
+        user.setUsername(rs.getString("username"));
+        user.setRole(rs.getString("role"));
+        user.setStatus(rs.getString("status"));
+        user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
+        
+        // Handle last_login timestamp conversion
+        Timestamp lastLogin = rs.getTimestamp("last_login");
+        if (lastLogin != null) {
+            user.setLastLogin(lastLogin.toLocalDateTime());
+        }
+        
+        // Include password_hash if present in ResultSet (some queries exclude it for security)
+        if (hasPasswordHashColumn) {
+            String passwordHash = rs.getString("password_hash");
+            user.setPasswordHash(passwordHash);
+        }
+        // If column doesn't exist, leave password_hash null
+        
+        return user;
+    }
+
+    /**
+     * Get all users from the auth database with pagination support.
+     * @param limit maximum number of users to return
+     * @param offset number of users to skip
+     * @return list of users (excluding password_hash for security)
+     */
+    public java.util.List<User> getAllUsers(int limit, int offset) throws SQLException {
+        // Input validation to prevent abuse and ensure reasonable limits
+        if (limit < 1) {
+            throw new IllegalArgumentException("Limit must be at least 1, got: " + limit);
+        }
+        if (limit > 10000) {
+            throw new IllegalArgumentException("Limit cannot exceed 10000, got: " + limit);
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset must be non-negative, got: " + offset);
+        }
+        
+        String sql = "SELECT user_id, username, role, status, failed_login_attempts, last_login " +
+                     "FROM users_auth ORDER BY username LIMIT ? OFFSET ?";
+        
+        java.util.List<User> users = new java.util.ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, limit);
+            stmt.setInt(2, offset);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                // Check metadata once before the loop to avoid repeated checks
+                boolean hasPasswordHashColumn = false;
+                if (rs.next()) {
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    
+                    for (int i = 1; i <= columnCount; i++) {
+                        if ("password_hash".equalsIgnoreCase(metaData.getColumnLabel(i))) {
+                            hasPasswordHashColumn = true;
+                            break;
+                        }
+                    }
+                    
+                    // Process first row
+                    users.add(mapResultSetToUser(rs, hasPasswordHashColumn));
+                    
+                    // Process remaining rows
+                    while (rs.next()) {
+                        users.add(mapResultSetToUser(rs, hasPasswordHashColumn));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error getting all users with limit {} and offset {}", limit, offset, e);
+            throw e;
+        }
+        return users;
+    }
+
+    /**
+     * Get all users from the auth database (backward compatibility method).
+     * @return list of all users (excluding password_hash for security)
+     */
+    public java.util.List<User> getAllUsers() throws SQLException {
+        // Use a reasonable default page size for backward compatibility
+        return getAllUsers(1000, 0);
+    }
+
+    /**
+     * Find user by ID (includes password_hash for authentication purposes).
+     */
+    public User findById(Long userId) throws SQLException {
+        String sql = "SELECT user_id, username, role, password_hash, status, failed_login_attempts, last_login " +
+                     "FROM users_auth WHERE user_id = ?";
+
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding user by ID: {}", userId, e);
+            throw e;
+        }
+        return null;
+    }
+
+    /**
+     * Delete a user by ID.
+     */
+    public void deleteUser(Long userId) throws SQLException {
+        String sql = "DELETE FROM users_auth WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setLong(1, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error deleting user with ID: {}", userId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Update user information (full User object).
+     */
+    public void updateUser(User user) throws SQLException {
+        String sql = "UPDATE users_auth SET username = ?, role = ?, status = ? WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getRole());
+            stmt.setString(3, user.getStatus());
+            stmt.setLong(4, user.getUserId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error updating user with ID: {}", user.getUserId(), e);
+            throw e;
+        }
+    }
+    
+    /**
+     * Update user with specific fields (username and role).
+     */
+    public void updateUser(Long userId, String username, String role) throws SQLException {
+        String sql = "UPDATE users_auth SET username = ?, role = ? WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, username);
+            stmt.setString(2, role);
+            stmt.setLong(3, userId);
+            
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                logger.error("No user exists with userId={}. Update failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Update failed.");
+            }
+        } catch (SQLException e) {
+            logger.error("Error updating user with ID: {}", userId, e);
+            throw e;
+        }
+    }
+    
+    /**
+     * Reset password for a user (accepts hashed password).
+     */
+    public void resetPassword(Long userId, String hashedPassword) throws SQLException {
+        String sql = "UPDATE users_auth SET password_hash = ?, failed_login_attempts = 0 WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, hashedPassword);
+            stmt.setLong(2, userId);
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                logger.error("No user exists with userId={}. Password reset failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Password reset failed.");
+            }
+            
+            logger.info("Password reset for user ID: {}", userId);
+        } catch (SQLException e) {
+            logger.error("Error resetting password for user ID: {}", userId, e);
+            throw e;
+        }
+    }
+    
+    /**
+     * Unlock a locked user account.
+     */
+    public void unlockAccount(Long userId) throws SQLException {
+        String sql = "UPDATE users_auth SET status = ?, failed_login_attempts = 0 WHERE user_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getAuthConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, User.STATUS_ACTIVE);
+            stmt.setLong(2, userId);
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                logger.error("No user exists with userId={}. Account unlock failed.", userId);
+                throw new SQLException("No user exists with userId=" + userId + ". Account unlock failed.");
+            }
+            
+            logger.info("Account unlocked for user ID: {}", userId);
+        } catch (SQLException e) {
+            logger.error("Error unlocking account for user ID: {}", userId, e);
             throw e;
         }
     }

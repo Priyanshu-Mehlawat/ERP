@@ -18,10 +18,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- Note: You'll need to generate actual BCrypt hashes in your application
 
 INSERT INTO users_auth (user_id, username, role, password_hash, status, failed_login_attempts) VALUES
-(1, 'admin1', 'ADMIN', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ACTIVE', 0),
-(2, 'inst1', 'INSTRUCTOR', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ACTIVE', 0),
-(3, 'stu1', 'STUDENT', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ACTIVE', 0),
-(4, 'stu2', 'STUDENT', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ACTIVE', 0);
+(1, 'admin1', 'ADMIN', '$2a$10$Q16DVbv.0cgmwrTT3cmMOe9Of8Bvc5EhHBHGzv7nZahn2iiTycxCy', 'ACTIVE', 0),
+(2, 'inst1', 'INSTRUCTOR', '$2a$10$Q16DVbv.0cgmwrTT3cmMOe9Of8Bvc5EhHBHGzv7nZahn2iiTycxCy', 'ACTIVE', 0),
+(3, 'stu1', 'STUDENT', '$2a$10$Q16DVbv.0cgmwrTT3cmMOe9Of8Bvc5EhHBHGzv7nZahn2iiTycxCy', 'ACTIVE', 0),
+(4, 'stu2', 'STUDENT', '$2a$10$Q16DVbv.0cgmwrTT3cmMOe9Of8Bvc5EhHBHGzv7nZahn2iiTycxCy', 'ACTIVE', 0);
 
 -- Note: The password hash above is for "password123"
 -- In production, always generate fresh hashes using BCrypt

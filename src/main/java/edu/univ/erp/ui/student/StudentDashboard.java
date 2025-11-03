@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.awt.*;
 
 /**
@@ -32,9 +33,15 @@ public class StudentDashboard extends JFrame {
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 18));
         topPanel.add(welcomeLabel, BorderLayout.WEST);
 
+        // Right side buttons panel
+        JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        JButton changePasswordBtn = new JButton("Change Password");
+        changePasswordBtn.addActionListener(e -> openChangePasswordDialog());
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> logout());
-        topPanel.add(logoutButton, BorderLayout.EAST);
+        topButtonsPanel.add(changePasswordBtn);
+        topButtonsPanel.add(logoutButton);
+        topPanel.add(topButtonsPanel, BorderLayout.EAST);
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -44,10 +51,35 @@ public class StudentDashboard extends JFrame {
 
         // Menu buttons
         JButton browseCatalogBtn = createMenuButton("Browse Course Catalog", "View available courses");
+        // Replace default placeholder action with real action
+        for (ActionListener al : browseCatalogBtn.getActionListeners()) {
+            browseCatalogBtn.removeActionListener(al);
+        }
+        browseCatalogBtn.addActionListener(e -> openCourseCatalog());
+
         JButton myCoursesBtn = createMenuButton("My Courses", "View registered courses");
+        for (ActionListener al : myCoursesBtn.getActionListeners()) {
+            myCoursesBtn.removeActionListener(al);
+        }
+        myCoursesBtn.addActionListener(e -> openMyCourses());
+
         JButton timetableBtn = createMenuButton("My Timetable", "View class schedule");
+        for (ActionListener al : timetableBtn.getActionListeners()) {
+            timetableBtn.removeActionListener(al);
+        }
+        timetableBtn.addActionListener(e -> openTimetable());
+
         JButton gradesBtn = createMenuButton("My Grades", "View grades and scores");
+        for (ActionListener al : gradesBtn.getActionListeners()) {
+            gradesBtn.removeActionListener(al);
+        }
+        gradesBtn.addActionListener(e -> openGrades());
+
         JButton transcriptBtn = createMenuButton("Download Transcript", "Export transcript");
+        for (ActionListener al : transcriptBtn.getActionListeners()) {
+            transcriptBtn.removeActionListener(al);
+        }
+        transcriptBtn.addActionListener(e -> openTranscript());
 
         centerPanel.add(browseCatalogBtn, "grow");
         centerPanel.add(myCoursesBtn, "grow");
@@ -81,6 +113,10 @@ public class StudentDashboard extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    private void openChangePasswordDialog() {
+        new edu.univ.erp.ui.auth.ChangePasswordDialog(this).setVisible(true);
+    }
+
     private void logout() {
         int result = JOptionPane.showConfirmDialog(this,
                 "Are you sure you want to logout?",
@@ -93,4 +129,55 @@ public class StudentDashboard extends JFrame {
             new LoginFrame().setVisible(true);
         }
     }
+
+    private void openCourseCatalog() {
+        JDialog dialog = new JDialog(this, "Course Catalog", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(800, 500);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new CourseCatalogPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openMyCourses() {
+        JDialog dialog = new JDialog(this, "My Courses", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(800, 500);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new MyCoursesPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openTimetable() {
+        JDialog dialog = new JDialog(this, "My Timetable", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(900, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new MyTimetablePanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openGrades() {
+        JDialog dialog = new JDialog(this, "My Grades", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(1000, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new MyGradesPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void openTranscript() {
+        JDialog dialog = new JDialog(this, "Official Transcript", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(900, 600);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new TranscriptPanel(), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
 }
