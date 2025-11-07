@@ -503,15 +503,6 @@ This project is for **educational purposes only** as part of the IIITD curriculu
 - **JUnit** - Testing framework
 - **OpenCSV & OpenPDF** - Document generation libraries
 
----
-
-## 📞 Support
-
-For questions or issues:
-1. Check the [Troubleshooting](#troubleshooting) section
-2. Review logs in `logs/erp.log`
-3. Consult [docs/Final_Project_Report.md](docs/Final_Project_Report.md)
-4. Contact your project supervisor or TA
 
 ---
 
