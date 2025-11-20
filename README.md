@@ -33,12 +33,9 @@ This app helps manage university tasks for students, teachers, and admins.
 It has separate dashboards for each role and basic security features.
 
 Some things we added:
-- 97 tests all passing
 - Password hashing & account lockouts
 - FlatLaf UI for a nicer look
 - Two databases with connection pooling
-- 50+ pages of project documentation
-
 
 ---
 
@@ -50,7 +47,6 @@ Some things we added:
 - View weekly timetable
 - Check grades for assignments, midterms, and finals
 - Download official PDF transcripts
-- Add/drop deadlines are handled automatically
 
 ### Instructors
 - See the sections you are teaching
@@ -73,18 +69,19 @@ Some things we added:
 
 ## 🛠️ Technology Stack
 
-| Category | Technology | Version | Purpose |
-|----------|-----------|---------|---------|
-| **Language** | Java SE | 17+ | Core application logic |
-| **UI Framework** | Swing + FlatLaf | 3.2.5 | Modern desktop interface |
-| **Database** | MySQL | 8.0+ | Persistent data storage |
-| **Connection Pool** | HikariCP | 5.0.1 | High-performance DB connections |
-| **Security** | BCrypt | - | Password hashing (cost 12) |
-| **Build Tool** | Maven | 3.6+ | Dependency management & build |
-| **Testing** | JUnit 5 | 5.10.0 | Unit & integration testing |
-| **Logging** | SLF4J + Logback | 2.0.7 | Application logging |
-| **CSV Export** | OpenCSV | 5.7.1 | Grade report generation |
-| **PDF Generation** | OpenPDF | 1.3.30 | Transcript creation |
+| Category        | Technology           | Purpose                         |
+|-----------------|--------------------|---------------------------------|
+| **Language**    | Java SE             | Core application logic          |
+| **UI Framework**| Swing + FlatLaf     | Modern desktop interface        |
+| **Database**    | MySQL               | Persistent data storage         |
+| **Connection Pool** | HikariCP         | High-performance DB connections |
+| **Security**    | BCrypt              | Password hashing (cost 12)     |
+| **Build Tool**  | Maven               | Dependency management & build  |
+| **Testing**     | JUnit 5             | Unit & integration testing      |
+| **Logging**     | SLF4J + Logback     | Application logging             |
+| **CSV Export**  | OpenCSV             | Grade report generation         |
+| **PDF Generation** | OpenPDF           | Transcript creation             |
+
 
 ---
 
@@ -172,11 +169,11 @@ cd /path/to/ERP_Project/ERP
 ```
 
 This script will:
-1. ✅ Check MySQL installation and service status
-2. ✅ Create databases (erp_auth, erp_main)
-3. ✅ Load schemas and seed data
-4. ✅ Build project with Maven
-5. ✅ Launch the application
+1.  Check MySQL installation and service status
+2.  Create databases (erp_auth, erp_main)
+3.  Load schemas and seed data
+4.  Build project with Maven
+5.  Launch the application
 
 ---
 
@@ -288,20 +285,20 @@ java -jar target/university-erp-1.0.0-jar-with-dependencies.jar
 
 ### **Authentication & Authorization — Protecting User Access**
 
-- ✅ **BCrypt Password Hashing**  
+-  **BCrypt Password Hashing**  
   Passwords are securely hashed using industry-standard BCrypt (cost factor 12). Plaintext passwords are never stored.
 
-- ✅ **Account Lockout**  
+-  **Account Lockout**  
   After 5 failed login attempts, accounts are automatically locked to prevent unauthorized access. Users can reset their passwords if needed.
 
-- ✅ **Separate Auth Database**  
+-  **Separate Auth Database**  
   All login credentials are stored in a dedicated authentication database, separate from the main ERP data, reducing the risk of accidental exposure.
 
-- ✅ **Role-Based Access Control (RBAC)**  
+-  **Role-Based Access Control (RBAC)**  
   Users only have access to features allowed by their role. Rules are enforced at the service layer to ensure proper permissions.  
   *Example:* Students cannot modify grades; instructors cannot edit other instructors’ courses.
 
-- ✅ **Session Management**  
+-  **Session Management**  
   Each user session is tracked securely, allowing only one active session per user to prevent concurrent unauthorized logins.
 
 ### **Data Security — Keeping Your Data Safe**
