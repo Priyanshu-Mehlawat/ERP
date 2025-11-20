@@ -5,68 +5,69 @@
 [![Maven](https://img.shields.io/badge/Maven-3.6+-red.svg)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-Educational-green.svg)](LICENSE)
 
-A comprehensive enterprise-grade desktop application built with Java Swing for managing university operations including student enrollment, course management, grade tracking, and administrative functions.
+A desktop app built with Java Swing to help manage university tasks like enrolling students, handling courses, tracking grades, and basic admin work.
 
 ---
 
-## 📋 Table of Contents
+# Table of Contents
+- Overview
+- Features
+- Tech Stack
+- System Architecture
+- Quick Start
+- Setup Instructions
+- How to Use
+- Security
+- Testing
+- Docs
+- Stats
+- Troubleshooting
+- License
 
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [System Architecture](#system-architecture)
-- [Quick Start](#quick-start)
-- [Detailed Setup](#detailed-setup)
-- [Usage Guide](#usage-guide)
-- [Security Features](#security-features)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Project Statistics](#project-statistics)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
 
 ---
 
 ## 🎯 Overview
 
-The University ERP Management System is a production-ready desktop application designed to streamline university operations. It provides role-based interfaces for students, instructors, and administrators with a focus on security, usability, and performance.
+This app helps manage university tasks for students, teachers, and admins.  
+It has separate dashboards for each role and basic security features.
 
-**Key Highlights:**
-- ✅ **Production Ready** - 97 comprehensive tests with 100% pass rate
-- ✅ **Secure** - BCrypt password hashing, account lockout, role-based access control
-- ✅ **Modern UI** - FlatLaf look and feel with intuitive navigation
-- ✅ **Enterprise Architecture** - Dual-database design with connection pooling
-- ✅ **Well Documented** - 50+ pages of technical documentation
+Some things we added:
+- 97 tests all passing
+- Password hashing & account lockouts
+- FlatLaf UI for a nicer look
+- Two databases with connection pooling
+- 50+ pages of project documentation
+
 
 ---
 
 ## 🚀 Features
 
-### 👨‍🎓 For Students
-- 📚 **Course Catalog** - Browse available courses with real-time seat availability
-- ✍️ **Registration** - Enroll in sections with automatic schedule conflict detection
-- 📅 **Timetable** - Visual weekly schedule with color-coded sections
-- 📊 **Grades** - View detailed assessment scores and final grades
-- 📄 **Transcript** - Download official PDF transcripts with GPA calculation
-- ⏰ **Deadlines** - Automatic enforcement of add/drop and withdrawal deadlines
+### Students
+- Browse courses and see how many seats are left
+- Register for sections (won’t allow time conflicts)
+- View weekly timetable
+- Check grades for assignments, midterms, and finals
+- Download official PDF transcripts
+- Add/drop deadlines are handled automatically
 
-### 👨‍🏫 For Instructors
-- 📋 **My Sections** - View and manage all assigned teaching sections
-- ✏️ **Grade Entry** - Enter scores for assignments, quizzes, midterms, and finals
-- ⚖️ **Grade Components** - Configure assessment weights (must total 100%)
-- 🧮 **Final Grades** - Automatic calculation of weighted final scores
-- 📈 **Statistics** - Class performance analytics and grade distribution
-- 📤 **Export** - Generate CSV reports for external analysis
-- 👥 **Student Lists** - View enrolled students with contact information
+### Instructors
+- See the sections you are teaching
+- Enter grades for assignments, quizzes, midterms, finals
+- Set assessment weights (must add up to 100%)
+- Auto-calc final grades
+- Export student performance reports in CSV
+- Check student lists with contact info
 
-### 👨‍💼 For Administrators
-- 👤 **User Management** - Create, update, and manage all user accounts
-- 📚 **Course Management** - Maintain course catalog with prerequisites
-- 🏫 **Section Management** - Create sections, assign instructors, set schedules
-- ⚙️ **System Settings** - Configure semester dates, deadlines, and system parameters
-- 🔧 **Maintenance Mode** - Enable read-only mode for system updates
-- 🔒 **Account Control** - Lock/unlock accounts, reset passwords
-- 📊 **System Reports** - View enrollment statistics and system health
+### Administrators
+- Add/edit students, instructors, and other admins
+- Add/edit courses and set prerequisites
+- Create sections, assign teachers, set schedules
+- Configure semester dates and system deadlines
+- Enable maintenance mode (read-only)
+- Lock/unlock accounts and reset passwords
+- View enrollment stats and system health
 
 ---
 
@@ -156,9 +157,9 @@ The University ERP Management System is a production-ready desktop application d
 ## ⚡ Quick Start
 
 ### **Prerequisites**
-- ☑️ Java 17 or higher ([Download](https://www.oracle.com/java/technologies/downloads/))
-- ☑️ MySQL 8.0 or higher ([Download](https://dev.mysql.com/downloads/))
-- ☑️ Maven 3.6+ (usually bundled with IDEs)
+-  Java 17 or higher ([Download](https://www.oracle.com/java/technologies/downloads/))
+-  MySQL 8.0 or higher ([Download](https://dev.mysql.com/downloads/))
+-  Maven 3.6+
 
 ### **One-Command Setup** (Recommended)
 
@@ -176,10 +177,6 @@ This script will:
 3. ✅ Load schemas and seed data
 4. ✅ Build project with Maven
 5. ✅ Launch the application
-
-### **Manual Setup** (Alternative)
-
-See [SETUP.md](SETUP.md) for detailed manual installation steps.
 
 ---
 
@@ -289,20 +286,39 @@ java -jar target/university-erp-1.0.0-jar-with-dependencies.jar
 
 ## 🔒 Security Features
 
-### **Authentication & Authorization**
-- ✅ **BCrypt Password Hashing** - Industry-standard with cost factor 12
-- ✅ **Account Lockout** - Automatic lock after 5 failed login attempts
-- ✅ **Separate Auth Database** - Credentials isolated from application data
-- ✅ **Role-Based Access Control (RBAC)** - Permissions enforced at service layer
-- ✅ **Session Management** - Secure single-session tracking per user
+### **Authentication & Authorization — Protecting User Access**
 
-### **Data Security**
-- ✅ **SQL Injection Protection** - PreparedStatements throughout
-- ✅ **Password History** - Track password changes (optional)
-- ✅ **Maintenance Mode** - Read-only system during updates
-- ✅ **Transaction Management** - ACID compliance with rollback support
+- ✅ **BCrypt Password Hashing**  
+  Passwords are securely hashed using industry-standard BCrypt (cost factor 12). Plaintext passwords are never stored.
 
-### **Security Best Practices**
+- ✅ **Account Lockout**  
+  After 5 failed login attempts, accounts are automatically locked to prevent unauthorized access. Users can reset their passwords if needed.
+
+- ✅ **Separate Auth Database**  
+  All login credentials are stored in a dedicated authentication database, separate from the main ERP data, reducing the risk of accidental exposure.
+
+- ✅ **Role-Based Access Control (RBAC)**  
+  Users only have access to features allowed by their role. Rules are enforced at the service layer to ensure proper permissions.  
+  *Example:* Students cannot modify grades; instructors cannot edit other instructors’ courses.
+
+- ✅ **Session Management**  
+  Each user session is tracked securely, allowing only one active session per user to prevent concurrent unauthorized logins.
+
+### **Data Security — Keeping Your Data Safe**
+
+- **SQL Injection Protection**  
+  All database operations use prepared statements to prevent SQL injection attacks.
+
+- **Password History**  
+  Optionally tracks password changes to prevent reuse of old passwords.
+
+- **Maintenance Mode**  
+  During system updates, the application can enter read-only mode to protect data integrity.
+
+- **Transaction Management**  
+  All database operations comply with ACID principles to ensure reliable data handling with automatic rollback on errors.
+
+### **Security Best Practices — Code Examples**
 ```java
 // Password hashing example
 String hashedPassword = PasswordUtil.hashPassword("plaintext");
@@ -311,85 +327,6 @@ boolean isValid = PasswordUtil.verifyPassword("plaintext", hashedPassword);
 // Permission checking example
 PermissionChecker.requireRole(UserRole.INSTRUCTOR);
 PermissionChecker.requireAdmin();
-```
-
----
-
-## 🧪 Testing
-
-### **Test Coverage**
-
-| Category | Tests | Status |
-|----------|-------|--------|
-| **Auth Layer** | 19 tests | ✅ 100% passing |
-| **DAO Layer** | 39 tests | ✅ 100% passing |
-| **Service Layer** | 34 tests | ✅ 100% passing |
-| **UI Layer** | 5 tests | ✅ 100% passing |
-| **TOTAL** | **97 tests** | ✅ **100% passing** |
-
-### **Run Tests**
-
-```bash
-# Run all tests
-mvn test
-
-# Run specific test class
-mvn test -Dtest=AuthServiceTest
-
-# Run with coverage (if configured)
-mvn test jacoco:report
-```
-
-### **Test Infrastructure**
-- **BaseDAOTest** - Database setup/teardown for DAO tests
-- **Mock Services** - Mockito for service layer isolation
-- **Test Data** - Dedicated seed data for testing
-- **Assertions** - JUnit 5 assertions with clear messages
-
----
-
-## 📚 Documentation
-
-### **Available Documentation**
-
-| Document | Location | Description |
-|----------|----------|-------------|
-| **README** | [README.md](README.md) | This file - project overview |
-| **Setup Guide** | [SETUP.md](SETUP.md) | Detailed installation instructions |
-| **How to Run** | [HOW_TO_RUN.md](HOW_TO_RUN.md) | Quick start and troubleshooting |
-| **Final Report** | [docs/Final_Project_Report.md](docs/Final_Project_Report.md) | 50+ page technical documentation |
-| **Demo Script** | [docs/Demo_Video_Script.md](docs/Demo_Video_Script.md) | Video demonstration guide |
-
-### **Code Documentation**
-- JavaDoc comments on all public methods
-- Inline comments for complex logic
-- README files in key directories
-- SQL schema documentation in database files
-
----
-
-## 📊 Project Statistics
-
-### **Codebase Metrics**
-- **Lines of Code**: 8,000+ LOC
-- **Java Classes**: 45+ classes
-- **Test Cases**: 97 comprehensive tests
-- **Test Coverage**: High (DAO & Service layers fully covered)
-- **Build Time**: ~10 seconds
-- **Startup Time**: ~2 seconds
-
-### **Database Metrics**
-- **Tables**: 9 tables across 2 databases
-- **Sample Data**: 4 users, 3 courses, 4 sections, 6 enrollments
-- **Connection Pool**: 10 max connections per database
-- **Query Performance**: < 100ms average
-
-### **Development Timeline**
-- **Week 1-2**: Foundation (Auth, DB, UI Framework)
-- **Week 3-4**: Student Features (Catalog, Registration, Grades)
-- **Week 5-6**: Instructor Features (Grade Entry, Statistics)
-- **Week 7**: Admin Features (User/Course/Section Management)
-- **Week 8-9**: Testing, Documentation, Polish
 
 ---
 
@@ -463,53 +400,3 @@ tail -f logs/erp.log
 ```
 
 ---
-
-## 🎓 Academic Information
-
-**Course**: Database Management Systems  
-**Institution**: IIIT Delhi  
-**Semester**: Fall 2025  
-**Team Size**: Individual Project  
-
-### **Learning Outcomes**
-- ✅ Multi-tier application architecture
-- ✅ Relational database design and normalization
-- ✅ Transaction management and ACID properties
-- ✅ Security best practices (BCrypt, RBAC, SQL injection prevention)
-- ✅ Connection pooling and performance optimization
-- ✅ Comprehensive unit testing with JUnit 5
-- ✅ Modern Java development with Maven
-- ✅ UI/UX design with Swing and FlatLaf
-
----
-
-## 📄 License
-
-This project is for **educational purposes only** as part of the IIITD curriculum.
-
-**Restrictions**:
-- ❌ Not for commercial use
-- ❌ Not for redistribution
-- ✅ May be used as learning reference
-- ✅ May be included in academic portfolios with proper attribution
-
----
-
-## 🙏 Acknowledgments
-
-- **IIIT Delhi** - Course curriculum and guidance
-- **FlatLaf** - Modern look and feel library
-- **HikariCP** - High-performance connection pooling
-- **JUnit** - Testing framework
-- **OpenCSV & OpenPDF** - Document generation libraries
-
-
----
-
-<div align="center">
-
-**🚀 Built with ❤️ using Java, Swing, and MySQL**
-
-*Last Updated: October 2025*
-
-</div>
