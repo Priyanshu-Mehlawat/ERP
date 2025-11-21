@@ -7,14 +7,21 @@ import edu.univ.erp.data.EnrollmentDAO;
 import edu.univ.erp.data.SectionDAO;
 import edu.univ.erp.domain.Enrollment;
 import edu.univ.erp.domain.Section;
+import edu.univ.erp.domain.Settings;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.univ.erp.data.DatabaseConnection;
 
 public class EnrollmentService {
+    private static final Logger logger = LoggerFactory.getLogger(EnrollmentService.class);
+
     private final EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
     private final SectionDAO sectionDAO = new SectionDAO();
     private final SettingsService settingsService = new SettingsService();
@@ -28,7 +35,20 @@ public class EnrollmentService {
         if (!settingsService.isRegistrationEnabled()) {
             return "Registration is currently disabled";
         }
-        
+
+        // Check add/drop deadline
+        try {
+            Settings settings = settingsService.getSettings();
+            LocalDateTime addDropDeadline = settings.getAddDropDeadline();
+            if (addDropDeadline != null && LocalDateTime.now().isAfter(addDropDeadline)) {
+                logger.info("Enrollment blocked for student {} - add/drop deadline passed", studentId);
+                return "Add/drop deadline has passed. Registration is closed.";
+            }
+        } catch (Exception e) {
+            logger.warn("Error checking add/drop deadline, allowing enrollment to proceed", e);
+            // Continue with enrollment if deadline check fails (fail-safe approach)
+        }
+
         // Check permission - students can only enroll themselves
         try {
             permissionChecker.requireStudentDataAccess(studentId);
@@ -75,7 +95,20 @@ public class EnrollmentService {
         if (!settingsService.isRegistrationEnabled()) {
             return "Registration is currently disabled";
         }
-        
+
+        // Check add/drop deadline
+        try {
+            Settings settings = settingsService.getSettings();
+            LocalDateTime addDropDeadline = settings.getAddDropDeadline();
+            if (addDropDeadline != null && LocalDateTime.now().isAfter(addDropDeadline)) {
+                logger.info("Drop blocked for student {} - add/drop deadline passed", studentId);
+                return "Add/drop deadline has passed. Cannot drop courses.";
+            }
+        } catch (Exception e) {
+            logger.warn("Error checking add/drop deadline, allowing drop to proceed", e);
+            // Continue with drop if deadline check fails (fail-safe approach)
+        }
+
         // Check permission - students can only drop themselves
         try {
             permissionChecker.requireStudentDataAccess(studentId);
