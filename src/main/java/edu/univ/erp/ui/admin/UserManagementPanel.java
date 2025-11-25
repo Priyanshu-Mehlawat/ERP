@@ -217,7 +217,7 @@ public class UserManagementPanel extends JPanel {
     }
     
     private void showAddUserDialog() {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add New User", true);
+        JDialog dialog = new JDialog((Window) SwingUtilities.getWindowAncestor(this), "Add New User", Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setLayout(new MigLayout("fillx", "[right]rel[grow,fill]", ""));
         
         // Form fields
@@ -336,7 +336,7 @@ public class UserManagementPanel extends JPanel {
         String currentUsername = (String) tableModel.getValueAt(selectedRow, 1);
         String currentRole = (String) tableModel.getValueAt(selectedRow, 2);
         
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit User", true);
+        JDialog dialog = new JDialog((Window) SwingUtilities.getWindowAncestor(this), "Edit User", Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setLayout(new MigLayout("fillx", "[right]rel[grow,fill]", ""));
         
         JTextField usernameField = new JTextField(currentUsername, 20);
@@ -475,8 +475,8 @@ public class UserManagementPanel extends JPanel {
         Long userId = (Long) tableModel.getValueAt(selectedRow, 0);
         String username = (String) tableModel.getValueAt(selectedRow, 1);
         
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
-            "Reset Password for " + username, true);
+        JDialog dialog = new JDialog((Window) SwingUtilities.getWindowAncestor(this), 
+            "Reset Password for " + username, Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setLayout(new MigLayout("fillx", "[right]rel[grow,fill]", ""));
         
         JPasswordField newPasswordField = new JPasswordField(20);
