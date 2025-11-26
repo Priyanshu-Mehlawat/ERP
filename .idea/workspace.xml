@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="185fc897-3713-431f-9316-9ca3f8f97470" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ERP_Project.code-workspace" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PROJECT_STATUS.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SETUP.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/01_auth_schema.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/02_erp_schema.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/03_auth_seed.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/04_erp_seed.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Demo_Video_Script.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Final_Project_Report.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/erp.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run-project.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup-database.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/auth/AuthDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/auth/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/auth/PasswordUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/auth/PermissionChecker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/auth/PermissionException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/auth/SessionManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/auth/UserRole.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/CourseDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/DatabaseConnection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/EnrollmentDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/GradeDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/InstructorDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/SectionDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/SettingsDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/data/StudentDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/Course.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/Enrollment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/Grade.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/Instructor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/Section.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/Settings.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/Student.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/domain/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/service/CourseService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/service/EnrollmentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/service/GradeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/service/SectionService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/service/SettingsService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/admin/AdminDashboard.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/admin/CourseManagementPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/admin/SectionManagementPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/admin/SettingsPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/admin/UserManagementPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/auth/ChangePasswordDialog.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/auth/LoginFrame.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/instructor/AttendancePanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/instructor/ClassRosterPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/instructor/CourseManagementPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/instructor/GradeEntryPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/instructor/InstructorDashboard.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/instructor/InstructorSchedulePanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/instructor/ReportsPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/student/CourseCatalogPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/student/MyCoursesPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/student/MyGradesPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/student/MyTimetablePanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/student/SectionSelectionDialog.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/student/StudentDashboard.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/ui/student/TranscriptPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/util/ConfigUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/univ/erp/util/PasswordHashGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/logback.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/auth/AuthServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/AuthDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/CourseDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/EnrollmentDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/GradeDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/InstructorDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/SectionDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/SettingsDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/data/StudentDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/service/CourseServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/service/GradeServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/service/SectionServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/service/SettingsServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/test/BaseDAOTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/ui/instructor/InstructorSchedulePanelConflictTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/edu/univ/erp/ui/instructor/ReportsPanelDependencyInjectionTest.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Priyanshu-Mehlawat&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Priyanshu-Mehlawat/ERP.git&quot;,
+    &quot;accountId&quot;: &quot;14eaa6eb-4c6e-470f-867a-ad22376514ca&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="35yeeGBuZu3bwBQxRbRnsZUjasy" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="185fc897-3713-431f-9316-9ca3f8f97470" name="Changes" comment="" />
+      <created>1764086832705</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1764086832705</updated>
+      <workItem from="1764086834640" duration="382000" />
+      <workItem from="1764095687552" duration="29000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>
