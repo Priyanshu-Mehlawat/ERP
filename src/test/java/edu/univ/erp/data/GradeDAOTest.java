@@ -57,7 +57,8 @@ class GradeDAOTest extends BaseDAOTest {
 
         // Create student user
         AuthDAO authDAO = new AuthDAO();
-        testStudentUserId = authDAO.createUser("grade_test_student", "STUDENT", PasswordUtil.hashPassword("password"));
+        String testPassword = "TestPass@" + System.currentTimeMillis();
+        testStudentUserId = authDAO.createUser("grade_test_student", "STUDENT", PasswordUtil.hashPassword(testPassword));
 
         // Create student record
         executeCleanupSQL("INSERT INTO students (user_id, roll_no, first_name, last_name, email, program, year) " +

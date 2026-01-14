@@ -62,7 +62,7 @@ public class ConfigUtil {
 
     // Database Configuration
     public static String getAuthDbUrl() {
-        return getProperty("auth.db.url", "jdbc:mysql://localhost:3306/erp_auth");
+        return getProperty("auth.db.url", "jdbc:mysql://localhost:3306/erp_auth?useSSL=true&requireSSL=true&verifyServerCertificate=false");
     }
 
     public static String getAuthDbUsername() {
@@ -70,11 +70,15 @@ public class ConfigUtil {
     }
 
     public static String getAuthDbPassword() {
-        return getProperty("auth.db.password", "password");
+        String password = getProperty("auth.db.password");
+        if (password == null || password.equals("changeme_in_production")) {
+            throw new IllegalStateException("Database password not configured. Set DB_AUTH_PASSWORD environment variable.");
+        }
+        return password;
     }
 
     public static String getErpDbUrl() {
-        return getProperty("erp.db.url", "jdbc:mysql://localhost:3306/erp_main");
+        return getProperty("erp.db.url", "jdbc:mysql://localhost:3306/erp_main?useSSL=true&requireSSL=true&verifyServerCertificate=false");
     }
 
     public static String getErpDbUsername() {
@@ -82,6 +86,10 @@ public class ConfigUtil {
     }
 
     public static String getErpDbPassword() {
-        return getProperty("erp.db.password", "password");
+        String password = getProperty("erp.db.password");
+        if (password == null || password.equals("changeme_in_production")) {
+            throw new IllegalStateException("Database password not configured. Set DB_ERP_PASSWORD environment variable.");
+        }
+        return password;
     }
 }

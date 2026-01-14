@@ -27,16 +27,17 @@ class StudentDAOTest extends BaseDAOTest {
     @BeforeEach
     void setupTestData() throws SQLException {
         AuthDAO authDAO = new AuthDAO();
+        String testPassword = "TestPass@" + System.currentTimeMillis();
         
         // Create two test students
-        testUserId1 = authDAO.createUser("stud_test_1", "STUDENT", PasswordUtil.hashPassword("password"));
+        testUserId1 = authDAO.createUser("stud_test_1", "STUDENT", PasswordUtil.hashPassword(testPassword));
         createdUserIds.add(testUserId1);
         executeCleanupSQL("INSERT INTO students (user_id, roll_no, first_name, last_name, email, program, year) " +
                 "VALUES (" + testUserId1 + ", 'STUD001', 'Alice', 'Smith', 'alice@test.com', 'B.Tech CSE', 2)");
         testStudentId1 = executeQueryForId("SELECT student_id FROM students WHERE user_id = " + testUserId1);
         createdStudentIds.add(testStudentId1);
 
-        testUserId2 = authDAO.createUser("stud_test_2", "STUDENT", PasswordUtil.hashPassword("password"));
+        testUserId2 = authDAO.createUser("stud_test_2", "STUDENT", PasswordUtil.hashPassword(testPassword));
         createdUserIds.add(testUserId2);
         executeCleanupSQL("INSERT INTO students (user_id, roll_no, first_name, last_name, email, program, year) " +
                 "VALUES (" + testUserId2 + ", 'STUD002', 'Bob', 'Jones', 'bob@test.com', 'B.Tech CSE', 3)");

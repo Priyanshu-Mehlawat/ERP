@@ -53,3 +53,4 @@ desktop.ini
 # Application specific
 application-local.properties
 *.env
+updates.md

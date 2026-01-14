@@ -30,15 +30,16 @@ class InstructorDAOTest extends BaseDAOTest {
         
         // Create two test instructors with unique employee IDs using timestamp
         String uniqueSuffix = String.valueOf(System.currentTimeMillis() % 100000);
+        String testPassword = "TestPass@" + uniqueSuffix;
         
-        testUserId1 = authDAO.createUser("inst_test_1_" + uniqueSuffix, "INSTRUCTOR", PasswordUtil.hashPassword("password"));
+        testUserId1 = authDAO.createUser("inst_test_1_" + uniqueSuffix, "INSTRUCTOR", PasswordUtil.hashPassword(testPassword));
         createdUserIds.add(testUserId1);
         executeCleanupSQL("INSERT INTO instructors (user_id, employee_id, first_name, last_name, email, department, phone_number) " +
                 "VALUES (" + testUserId1 + ", 'EMP" + uniqueSuffix + "1', 'John', 'Doe', 'john" + uniqueSuffix + "@test.com', 'CSE', '1234567890')");
         testInstructorId1 = executeQueryForId("SELECT instructor_id FROM instructors WHERE user_id = " + testUserId1);
         createdInstructorIds.add(testInstructorId1);
 
-        testUserId2 = authDAO.createUser("inst_test_2_" + uniqueSuffix, "INSTRUCTOR", PasswordUtil.hashPassword("password"));
+        testUserId2 = authDAO.createUser("inst_test_2_" + uniqueSuffix, "INSTRUCTOR", PasswordUtil.hashPassword(testPassword));
         createdUserIds.add(testUserId2);
         executeCleanupSQL("INSERT INTO instructors (user_id, employee_id, first_name, last_name, email, department, phone_number) " +
                 "VALUES (" + testUserId2 + ", 'EMP" + uniqueSuffix + "2', 'Jane', 'Smith', 'jane" + uniqueSuffix + "@test.com', 'CSE', '0987654321')");

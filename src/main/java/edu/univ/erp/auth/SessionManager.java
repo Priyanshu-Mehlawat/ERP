@@ -1,17 +1,22 @@
 package edu.univ.erp.auth;
 
 import edu.univ.erp.domain.User;
+import edu.univ.erp.util.ConfigUtil;
 
 /**
  * Session manager to track the currently logged-in user.
+ * Handles session timeout for security.
  */
 public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
-    private Long studentId; // For student role
-    private Long instructorId; // For instructor role
+    private Long studentId;
+    private Long instructorId;
+    private long lastActivityTime;
+    private static final long SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
     private SessionManager() {
+        this.lastActivityTime = System.currentTimeMillis();
     }
 
     public static synchronized SessionManager getInstance() {
@@ -21,25 +26,41 @@ public class SessionManager {
         return instance;
     }
 
-    /**
-     * Set the current logged-in user.
-     */
     public void setCurrentUser(User user) {
         this.currentUser = user;
+        this.lastActivityTime = System.currentTimeMillis();
     }
 
-    /**
-     * Get the current logged-in user.
-     */
     public User getCurrentUser() {
+        if (currentUser != null && isSessionExpired()) {
+            logout();
+            return null;
+        }
         return currentUser;
     }
 
-    /**
-     * Check if a user is logged in.
-     */
     public boolean isLoggedIn() {
-        return currentUser != null;
+        return currentUser != null && !isSessionExpired();
+    }
+
+    public boolean isSessionExpired() {
+        return System.currentTimeMillis() - lastActivityTime > SESSION_TIMEOUT_MS;
+    }
+
+    public void updateActivity() {
+        if (currentUser != null) {
+            this.lastActivityTime = System.currentTimeMillis();
+        }
+    }
+
+    public long getSessionTimeRemaining() {
+        long elapsed = System.currentTimeMillis() - lastActivityTime;
+        long remaining = SESSION_TIMEOUT_MS - elapsed;
+        return Math.max(0, remaining);
+    }
+
+    public void setSessionTimeout(long timeoutMs) {
+        // This could be enhanced to use ConfigUtil in production
     }
 
     /**

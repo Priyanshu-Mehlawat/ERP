@@ -56,7 +56,8 @@ class EnrollmentDAOTest extends BaseDAOTest {
 
         // Create a student user in auth DB
         AuthDAO authDAO = new AuthDAO();
-        testStudentUserId = authDAO.createUser("enroll_test_student", "STUDENT", PasswordUtil.hashPassword("password"));
+        String testPassword = "TestPass@" + System.currentTimeMillis();
+        testStudentUserId = authDAO.createUser("enroll_test_student", "STUDENT", PasswordUtil.hashPassword(testPassword));
 
         // Create student record in ERP DB
         executeCleanupSQL("INSERT INTO students (user_id, roll_no, first_name, last_name, email, program, year) " +
